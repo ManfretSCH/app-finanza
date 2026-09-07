@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Permite que la app hable con el backend por HTTP sin cifrar.
+
+  Android bloquea el trafico sin cifrar desde la version 9, y con razon. Aca se
+  habilita a proposito porque durante el desarrollo el backend corre en la
+  maquina de alguien del equipo, en la red local, sin certificado.
+
+  IMPORTANTE: antes de publicar la app hay que quitar esto y servir el backend
+  por HTTPS. Si no, cualquiera en la misma red podria leer los datos
+  financieros y el token de sesion de los usuarios.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

@@ -99,6 +99,24 @@ Para que `flutter doctor` quede sin avisos hace falta instalar el componente **c
 flutter doctor --android-licenses
 ```
 
+#### Repartir un APK al equipo
+
+Para que los demás prueben la app en su celular sin instalar nada de desarrollo:
+
+```bash
+./scripts/apk-para-el-equipo.sh
+```
+
+El script detecta la IP de esta máquina en la red local, compila el APK apuntando a ella y deja en `build-equipo/` el archivo y un instructivo para pasarles.
+
+Tres cosas que hay que tener en cuenta:
+
+- **La dirección del backend se fija al compilar.** Si cambia la red (de la facultad a la casa, por ejemplo), la IP cambia y hay que generar un APK nuevo.
+- **Todos tienen que estar en la misma Wi-Fi** que la máquina donde corre el backend, y el backend tiene que estar encendido: `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+- **El APK se firma con las claves de depuración**, que es lo que Flutter usa por defecto. Sirve para repartir entre nosotros, pero antes de publicar en Play Store hay que generar una clave propia.
+
+El APK excluye la arquitectura `x86_64`, que solo usan los emuladores: son 20 MB que ningún teléfono real necesita. Para probar en un emulador conviene usar `flutter run`.
+
 #### Probar en iPhone (iOS)
 
 La carpeta `ios/` ya está creada y configurada — identificador `py.edu.ua.finanzas.appFinanzas`, iOS 15 como mínimo. Solo faltan las herramientas de Apple, que se instalan una sola vez:

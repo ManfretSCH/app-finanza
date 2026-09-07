@@ -3,14 +3,33 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Direccion del backend segun donde se ejecute la app.
+/// Direccion del backend que se fija al compilar.
 ///
-/// El emulador de Android no puede usar "localhost": ese nombre apunta al
-/// propio emulador. 10.0.2.2 es el alias que Android usa para la maquina anfitriona.
-String get urlBase {
-  if (Platform.isAndroid) return 'http://10.0.2.2:8000/api/v1';
-  return 'http://localhost:8000/api/v1';
+/// Se pasa con --dart-define, por ejemplo:
+///   flutter build apk --release --dart-define=API_URL=http://192.168.0.5:8000/api/v1
+///
+/// Hace falta para repartir un APK: un telefono real no llega a "localhost" ni
+/// a 10.0.2.2, tiene que apuntar a la IP de la maquina donde corre el backend.
+const _urlDefinidaAlCompilar = String.fromEnvironment('API_URL');
+
+/// Decide contra que servidor habla la app.
+///
+/// Esta separada de [urlBase] para poder probarla con entradas explicitas, sin
+/// depender de con que banderas se compilo ni en que plataforma corre.
+///
+/// Si no se definio ninguna direccion al compilar se usa la de desarrollo. El
+/// emulador de Android no puede usar "localhost": ese nombre apunta al propio
+/// emulador. 10.0.2.2 es el alias que Android usa para la maquina anfitriona.
+String resolverUrlBase({required String definidaAlCompilar, required bool esAndroid}) {
+  if (definidaAlCompilar.isNotEmpty) return definidaAlCompilar;
+  return esAndroid ? 'http://10.0.2.2:8000/api/v1' : 'http://localhost:8000/api/v1';
 }
+
+/// Direccion del backend con la que se arma el cliente HTTP.
+String get urlBase => resolverUrlBase(
+      definidaAlCompilar: _urlDefinidaAlCompilar,
+      esAndroid: Platform.isAndroid,
+    );
 
 /// Cliente HTTP con el token adjuntado automaticamente en cada pedido.
 class ApiClient {

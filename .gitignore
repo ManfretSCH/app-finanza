@@ -26,6 +26,9 @@ mobile/android/local.properties
 .idea/
 .DS_Store
 
+# ---- Paquetes generados ----
+build-equipo/
+
 # ---- Datos locales ----
 postgres-data/
 *.log
