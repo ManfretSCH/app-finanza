@@ -1,0 +1,28 @@
+# Definicion del servicio para Render (https://render.com).
+#
+# Con este archivo en la raiz del repositorio, en Render se elige
+# "New > Blueprint", se conecta el repositorio y queda todo configurado.
+#
+# La base de datos NO se define aca: se usa PostgreSQL en Neon, que tiene capa
+# gratuita sin vencimiento. La cadena de conexion se carga a mano en
+# DATABASE_URL desde el panel de Render.
+
+services:
+  - type: web
+    name: finanzas-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: ENTORNO
+        value: produccion
+      # Render genera un valor aleatorio la primera vez y lo conserva.
+      - key: SECRET_KEY
+        generateValue: true
+      # Se carga a mano con la cadena de conexion que da Neon.
+      # Tiene que empezar con postgresql+psycopg:// para que la lea SQLAlchemy.
+      - key: DATABASE_URL
+        sync: false

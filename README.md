@@ -22,7 +22,7 @@ Tres capas, según el Hito 3:
 - **Categorías y tipos de cuenta** propios, además de los del sistema.
 - **Exportar** el informe del mes en CSV (para planilla) o PDF (para imprimir o enviar).
 
-Documentación del análisis en [`docs/`](docs/): [requerimientos](docs/requerimientos.md), [modelo de datos](docs/modelo-datos.md) y los [diagramas de casos de uso](docs/diagramas/).
+Documentación en [`docs/`](docs/): [requerimientos](docs/requerimientos.md), [modelo de datos](docs/modelo-datos.md), [diagramas de casos de uso](docs/diagramas/) y [guía de despliegue](docs/despliegue.md).
 
 ## Cómo levantar el proyecto
 
@@ -104,18 +104,23 @@ flutter doctor --android-licenses
 Para que los demás prueben la app en su celular sin instalar nada de desarrollo:
 
 ```bash
-./scripts/apk-para-el-equipo.sh
+./scripts/apk-para-el-equipo.sh https://finanzas-api.onrender.com
 ```
 
-El script detecta la IP de esta máquina en la red local, compila el APK apuntando a ella y deja en `build-equipo/` el archivo y un instructivo para pasarles.
+El script compila el APK apuntando a esa dirección y deja en `build-equipo/` el archivo y un instructivo para pasarles.
 
-Tres cosas que hay que tener en cuenta:
+Si se le pasa una IP en vez de una URL (o nada, y detecta la de esta máquina), apunta al backend local. En ese caso compila en modo depuración, porque Android bloquea el tráfico sin cifrar en las compilaciones de release; y todos tienen que estar en la misma Wi-Fi con el backend encendido.
 
-- **La dirección del backend se fija al compilar.** Si cambia la red (de la facultad a la casa, por ejemplo), la IP cambia y hay que generar un APK nuevo.
-- **Todos tienen que estar en la misma Wi-Fi** que la máquina donde corre el backend, y el backend tiene que estar encendido: `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+Dos cosas que hay que tener en cuenta:
+
+- **La dirección del backend se fija al compilar.** Si cambia, hay que generar un APK nuevo. Por eso conviene apuntar al backend desplegado y no a una IP de red local.
 - **El APK se firma con las claves de depuración**, que es lo que Flutter usa por defecto. Sirve para repartir entre nosotros, pero antes de publicar en Play Store hay que generar una clave propia.
 
 El APK excluye la arquitectura `x86_64`, que solo usan los emuladores: son 20 MB que ningún teléfono real necesita. Para probar en un emulador conviene usar `flutter run`.
+
+### Desplegar el backend
+
+Para que la app funcione desde cualquier lado sin depender de la computadora de nadie: ver la [guía de despliegue](docs/despliegue.md). Backend en Render y base en Neon, ambos con capa gratuita.
 
 #### Probar en iPhone (iOS)
 

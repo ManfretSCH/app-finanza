@@ -4,10 +4,12 @@ Casos de uso del diagrama 01: Registrarse, Iniciar sesion, Cerrar sesion,
 Cambiar contrasena.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from sqlalchemy import select
 
 from app.api.deps import CurrentUser, DbSession
+from app.core import limites
+from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models import User
 from app.schemas.user import LoginRequest, PasswordChange, Token, UserCreate, UserOut, UserUpdate
@@ -38,14 +40,28 @@ def registrar(datos: UserCreate, db: DbSession) -> Token:
 
 
 @router.post("/login", response_model=Token)
-def iniciar_sesion(datos: LoginRequest, db: DbSession) -> Token:
+def iniciar_sesion(datos: LoginRequest, peticion: Request, db: DbSession) -> Token:
+    ip = peticion.client.host if peticion.client else "desconocida"
+
+    if limites.esta_bloqueada(ip):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                "Demasiados intentos fallidos. "
+                f"Espera {settings.VENTANA_LOGIN_MINUTOS} minutos y volve a intentar."
+            ),
+        )
+
     user = db.scalar(select(User).where(User.email == datos.email))
     # Mismo mensaje si falla el correo o la contrasena: no revelamos que correos existen.
     if user is None or not verify_password(datos.password, user.password_hash):
+        limites.registrar_fallo(ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo o contrasena incorrectos",
         )
+
+    limites.limpiar(ip)
     return Token(access_token=create_access_token(user.id), usuario=UserOut.model_validate(user))
 
 

@@ -6,30 +6,54 @@
 # La direccion se fija al compilar, asi que hay que volver a generar el APK
 # cada vez que cambie la IP (al cambiar de red, o si el router la reasigna).
 #
-#   ./scripts/apk-para-el-equipo.sh            usa la IP detectada
-#   ./scripts/apk-para-el-equipo.sh 10.0.0.7   usa la que le indiques
+#   ./scripts/apk-para-el-equipo.sh                                  IP detectada
+#   ./scripts/apk-para-el-equipo.sh 10.0.0.7                         una IP
+#   ./scripts/apk-para-el-equipo.sh https://finanzas-api.onrender.com  el backend desplegado
 #
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-IP="${1:-$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)}"
+# Se puede pasar una URL completa (el backend desplegado) o una IP (red local).
+ENTRADA="${1:-}"
 
-if [ -z "$IP" ]; then
-  echo "No se pudo detectar la IP de esta maquina en la red local."
-  echo "Pasala como argumento: ./scripts/apk-para-el-equipo.sh 192.168.0.5"
-  exit 1
+if [[ "$ENTRADA" == http://* || "$ENTRADA" == https://* ]]; then
+  URL="${ENTRADA%/}"
+  [[ "$URL" == */api/v1 ]] || URL="${URL}/api/v1"
+else
+  IP="${ENTRADA:-$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)}"
 fi
 
-URL="http://${IP}:8000/api/v1"
+if [ -z "${URL:-}" ]; then
+  if [ -z "${IP:-}" ]; then
+    echo "No se pudo detectar la IP de esta maquina en la red local."
+    echo "Pasa una IP o la URL del backend desplegado:"
+    echo "  ./scripts/apk-para-el-equipo.sh 192.168.0.5"
+    echo "  ./scripts/apk-para-el-equipo.sh https://finanzas-api.onrender.com"
+    exit 1
+  fi
+  URL="http://${IP}:8000/api/v1"
+fi
 echo "Compilando el APK contra ${URL}"
 echo
 
 cd mobile
+# Las compilaciones de release no permiten trafico sin cifrar. Si el backend
+# todavia esta en HTTP (por ejemplo en la red local), se compila en modo
+# depuracion, que si lo permite: pesa mas y va mas lento, pero funciona.
+if [[ "$URL" == https://* ]]; then
+  MODO="--release"
+  echo "Backend por HTTPS: se compila en modo release."
+else
+  MODO="--debug"
+  echo "Backend por HTTP sin cifrar: se compila en modo depuracion, porque"
+  echo "Android bloquea el trafico en claro en las compilaciones de release."
+fi
+
 # Se excluye x86_64, que solo la usan los emuladores: son 20 MB que ningun
 # telefono real necesita. Quedan arm64 (todo lo moderno) y arm de 32 bits
 # (equipos viejos). Para probar en un emulador conviene usar flutter run.
-flutter build apk --release \
+flutter build apk $MODO \
   --target-platform android-arm,android-arm64 \
   --dart-define="API_URL=${URL}"
 

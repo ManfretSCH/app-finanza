@@ -1,0 +1,101 @@
+# Desplegar el backend
+
+Guía para poner la API en internet, de modo que la app funcione desde cualquier lugar sin depender de que una computadora del equipo esté encendida.
+
+**Base de datos:** PostgreSQL en [Neon](https://neon.tech) — capa gratuita sin vencimiento.
+**Backend:** [Render](https://render.com) — capa gratuita.
+
+Ninguno de los dos pide tarjeta.
+
+## Antes de empezar
+
+Hace falta el repositorio en GitHub. Render despliega desde un repositorio Git, no desde archivos sueltos.
+
+```bash
+git remote add origin https://github.com/USUARIO/app-finanza.git
+git push -u origin main
+```
+
+## 1. Crear la base de datos en Neon
+
+1. Entrar a [neon.tech](https://neon.tech) y crear una cuenta.
+2. Crear un proyecto. Elegir la región más cercana (`AWS us-east-1` anda bien desde Paraguay).
+3. Copiar la cadena de conexión que muestra al terminar. Se ve así:
+
+   ```
+   postgresql://usuario:contraseña@ep-algo-123456.us-east-1.aws.neon.tech/neondb?sslmode=require
+   ```
+
+4. **Cambiar el principio** de `postgresql://` a `postgresql+psycopg://`. Sin eso SQLAlchemy no sabe qué driver usar y falla al arrancar. Queda:
+
+   ```
+   postgresql+psycopg://usuario:contraseña@ep-algo-123456.us-east-1.aws.neon.tech/neondb?sslmode=require
+   ```
+
+Guardar esa cadena, se usa en el paso siguiente.
+
+## 2. Desplegar el backend en Render
+
+1. Entrar a [render.com](https://render.com) y crear una cuenta con GitHub.
+2. **New → Blueprint**, elegir el repositorio. Render lee [`render.yaml`](../render.yaml) y arma el servicio solo.
+3. Antes de crear, pide completar las variables marcadas como `sync: false`. Pegar en **`DATABASE_URL`** la cadena del paso anterior, la modificada.
+4. Crear. El primer despliegue tarda unos minutos: compila la imagen de Docker y aplica las migraciones.
+
+Las otras variables ya vienen resueltas: `ENTORNO=produccion` y una `SECRET_KEY` aleatoria que Render genera y conserva.
+
+Al terminar queda una dirección tipo `https://finanzas-api.onrender.com`. Para comprobar que anda:
+
+```bash
+curl https://finanzas-api.onrender.com/health
+```
+
+Debe responder `{"status":"ok","entorno":"produccion"}`.
+
+## 3. Generar el APK apuntando al servidor
+
+```bash
+./scripts/apk-para-el-equipo.sh https://finanzas-api.onrender.com
+```
+
+Como la dirección es HTTPS, el script compila en modo release. Queda en `build-equipo/` junto con el instructivo.
+
+**Este APK ya no depende de la red de nadie.** Funciona con datos móviles, desde la facultad o desde la casa.
+
+## Qué esperar de la capa gratuita
+
+- **El servicio se duerme** tras un rato sin uso. El primer pedido después tarda entre 30 y 60 segundos en responder mientras se despierta. Si van a mostrar la app en la defensa, conviene abrirla unos minutos antes.
+- Neon también suspende la base por inactividad, pero se despierta en segundos.
+- Render reconstruye y vuelve a desplegar en cada push a `main`.
+
+## Qué se endureció para publicarlo
+
+Estas cosas no hacían falta con el backend en la red local y sí al exponerlo a internet:
+
+| Qué | Por qué |
+|---|---|
+| El arranque falla si `SECRET_KEY` sigue siendo la de ejemplo | Es la clave con la que se firman los tokens. Si quedara la del repositorio, cualquiera podría fabricarse una sesión de cualquier usuario. |
+| Límite de 10 intentos de login por IP cada 15 minutos | Sin eso se pueden probar contraseñas indefinidamente. |
+| `/docs` y `/openapi.json` ocultos en producción | Le dan a cualquiera el mapa completo de la API. En desarrollo siguen disponibles. |
+| El APK de release exige HTTPS | Los datos financieros y el token no viajan en claro. En desarrollo se sigue permitiendo HTTP contra `localhost`. |
+| El contenedor no corre como `root` | Reduce el daño si alguien lograra ejecutar algo dentro. |
+
+## Limitaciones conocidas
+
+- **El límite de intentos vive en la memoria del proceso.** Se reinicia cuando se reinicia el servidor, y si algún día se levantan varias instancias cada una llevaría su propia cuenta. La versión robusta usaría Redis. Para una sola instancia, alcanza.
+- **No hay copias de seguridad automáticas.** Neon guarda un historial corto en su capa gratuita. Antes de la entrega final conviene exportar la base a mano.
+- **No hay recuperación de contraseña por correo.** El caso de uso está en el diagrama pero requiere un servicio de envío de correos.
+
+## Probar la imagen en tu máquina antes de desplegar
+
+Sirve para no descubrir un error recién en el servidor:
+
+```bash
+docker build -t finanzas-api ./backend
+docker run --rm --network app-finanza_default \
+  -e ENTORNO=produccion \
+  -e SECRET_KEY="$(python3 -c 'import secrets;print(secrets.token_urlsafe(32))')" \
+  -e DATABASE_URL="postgresql+psycopg://finanzas:finanzas@db:5432/finanzas" \
+  -e PORT=8000 -p 8100:8000 finanzas-api
+```
+
+Y en otra terminal: `curl http://localhost:8100/health`

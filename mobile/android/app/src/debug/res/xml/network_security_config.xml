@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Solo para compilaciones de depuracion.
+
+  Permite hablar con el backend local por HTTP sin cifrar, que es como corre en
+  la maquina de cada uno. Este archivo reemplaza al de src/main durante el
+  desarrollo y nunca llega a una compilacion de release.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
