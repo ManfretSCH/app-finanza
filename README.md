@@ -26,6 +26,32 @@ Documentación en [`docs/`](docs/): [requerimientos](docs/requerimientos.md), [m
 
 ## Cómo levantar el proyecto
 
+### El camino corto
+
+Dos terminales, un comando en cada una:
+
+```bash
+./scripts/arrancar-backend.sh
+```
+
+```bash
+cd mobile && flutter run
+```
+
+El primer script abre Docker si hace falta, levanta PostgreSQL, aplica las migraciones que falten y arranca el servidor. El segundo compila la app y la instala en el emulador que esté abierto.
+
+Si no hay ningún emulador corriendo, se abre uno antes desde el Device Manager de Android Studio, o por consola:
+
+```bash
+~/Library/Android/sdk/emulator/emulator -avd ClickVirtual_Pixel7
+```
+
+Para apagar todo: `Ctrl+C` en cada terminal, y `docker compose down` para la base.
+
+### El camino largo, paso a paso
+
+Conviene conocerlo para poder diagnosticar cuando algo falla.
+
 ### 1. Base de datos
 
 Requiere **Docker Desktop abierto**.
