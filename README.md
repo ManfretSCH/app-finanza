@@ -22,6 +22,8 @@ Tres capas, según el Hito 3:
 - **Categorías y tipos de cuenta** propios, además de los del sistema.
 - **Exportar** el informe del mes en CSV (para planilla) o PDF (para imprimir o enviar).
 
+**API desplegada:** https://finanzas-api-zbqy.onrender.com — backend en Render, base en Neon. Ver la [guía de despliegue](docs/despliegue.md).
+
 Documentación en [`docs/`](docs/): [requerimientos](docs/requerimientos.md), [modelo de datos](docs/modelo-datos.md), [diagramas de casos de uso](docs/diagramas/) y [guía de despliegue](docs/despliegue.md).
 
 ## Cómo levantar el proyecto

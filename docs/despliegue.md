@@ -38,7 +38,9 @@ Guardar esa cadena, se usa en el paso siguiente.
 
 Entrar a [render.com](https://render.com) y crear una cuenta con GitHub. Después **New +** → **Web Service**.
 
-> El repositorio incluye un [`render.yaml`](../render.yaml) para desplegar por Blueprint, pero esa opción no aparece en el menú "New +" de Render. Creando el servicio a mano queda igual; la diferencia es que la configuración vive en el panel en vez del archivo.
+> El repositorio incluye un [`render.yaml`](../render.yaml) para desplegar por Blueprint, pero esa opción no está en el menú "New +": Render la ubica en una sección **Blueprints** aparte. Creando el servicio a mano queda igual; la diferencia es que la configuración vive en el panel en vez del archivo.
+>
+> **Si el servicio ya está creado a mano, no apliques el Blueprint después.** Render lo trataría como algo nuevo y levantaría un segundo servicio en paralelo, con su propia dirección, apuntando a la misma base.
 
 Configuración del servicio:
 
