@@ -1,4 +1,4 @@
-"""Carga las categorias predefinidas del sistema (RF-003).
+"""Carga los datos predefinidos del sistema: categorias y tipos de cuenta.
 
 Son las que ve todo usuario nuevo. Tienen user_id NULL y no se pueden editar
 ni borrar desde la API. Ejecutar con:  uv run python -m app.db.seed
@@ -7,7 +7,7 @@ ni borrar desde la API. Ejecutar con:  uv run python -m app.db.seed
 from sqlalchemy import select
 
 from app.db.session import SessionLocal
-from app.models import Category
+from app.models import AccountType, Category
 from app.models.enums import TipoMovimiento
 
 CATEGORIAS_PREDEFINIDAS: list[tuple[str, TipoMovimiento, str, str]] = [
@@ -29,6 +29,29 @@ CATEGORIAS_PREDEFINIDAS: list[tuple[str, TipoMovimiento, str, str]] = [
 ]
 
 
+TIPOS_DE_CUENTA_PREDEFINIDOS: list[tuple[str, str]] = [
+    ("Caja de ahorro", "savings"),
+    ("Cuenta corriente", "account_balance"),
+    ("Tarjeta de credito", "credit_card"),
+    ("Efectivo", "payments"),
+]
+
+
+def cargar_tipos_de_cuenta_predefinidos() -> int:
+    """Inserta los que falten. Idempotente."""
+    creados = 0
+    with SessionLocal() as db:
+        for nombre, icono in TIPOS_DE_CUENTA_PREDEFINIDOS:
+            existe = db.scalar(
+                select(AccountType).where(AccountType.user_id.is_(None), AccountType.nombre == nombre)
+            )
+            if existe is None:
+                db.add(AccountType(user_id=None, nombre=nombre, icono=icono))
+                creados += 1
+        db.commit()
+    return creados
+
+
 def cargar_categorias_predefinidas() -> int:
     """Inserta las que falten. Es idempotente: se puede correr varias veces sin duplicar."""
     creadas = 0
@@ -45,5 +68,5 @@ def cargar_categorias_predefinidas() -> int:
 
 
 if __name__ == "__main__":
-    n = cargar_categorias_predefinidas()
-    print(f"Categorias predefinidas creadas: {n}")
+    print(f"Tipos de cuenta predefinidos creados: {cargar_tipos_de_cuenta_predefinidos()}")
+    print(f"Categorias predefinidas creadas: {cargar_categorias_predefinidas()}")

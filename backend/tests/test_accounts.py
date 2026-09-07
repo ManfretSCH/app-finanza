@@ -1,16 +1,6 @@
 """Pruebas de cuentas y del calculo de saldos (RF-001)."""
 
-from tests.conftest import registrar_usuario
-
-
-def crear_cuenta(client, auth, nombre="Caja de ahorro", saldo="1000.00"):
-    r = client.post(
-        "/api/v1/accounts",
-        json={"nombre": nombre, "tipo": "ahorro", "saldo_inicial": saldo, "moneda": "PYG"},
-        headers=auth,
-    )
-    assert r.status_code == 201, r.text
-    return r.json()
+from tests.conftest import crear_cuenta, registrar_usuario
 
 
 def test_crear_y_listar_cuenta(client, auth):

@@ -10,10 +10,10 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
-from app.db.seed import CATEGORIAS_PREDEFINIDAS
+from app.db.seed import CATEGORIAS_PREDEFINIDAS, TIPOS_DE_CUENTA_PREDEFINIDOS
 from app.db.session import Base, get_db
 from app.main import app
-from app.models import Category
+from app.models import AccountType, Category
 
 TEST_DB_URL = settings.DATABASE_URL.rsplit("/", 1)[0] + "/finanzas_test"
 
@@ -41,9 +41,11 @@ def db_session(crear_base_de_pruebas):
     Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     session = Session()
 
-    # Las categorias predefinidas son parte del estado base del sistema.
+    # Los datos predefinidos son parte del estado base del sistema.
     for nombre, tipo, icono, color in CATEGORIAS_PREDEFINIDAS:
         session.add(Category(user_id=None, nombre=nombre, tipo=tipo, icono=icono, color=color))
+    for nombre, icono in TIPOS_DE_CUENTA_PREDEFINIDOS:
+        session.add(AccountType(user_id=None, nombre=nombre, icono=icono))
     session.commit()
 
     yield session
@@ -74,3 +76,20 @@ def registrar_usuario(client, email="ana@example.com", password="secreta123", no
 @pytest.fixture
 def auth(client):
     return registrar_usuario(client)
+
+
+def crear_cuenta(client, auth, nombre="Caja de ahorro", saldo="1000.00"):
+    """Atajo: crea una cuenta usando el primer tipo predefinido."""
+    tipos = client.get("/api/v1/account-types", headers=auth).json()
+    r = client.post(
+        "/api/v1/accounts",
+        json={
+            "nombre": nombre,
+            "account_type_id": tipos[0]["id"],
+            "saldo_inicial": saldo,
+            "moneda": "PYG",
+        },
+        headers=auth,
+    )
+    assert r.status_code == 201, r.text
+    return r.json()

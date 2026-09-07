@@ -14,7 +14,7 @@ class CuentasRepository {
 
   Future<Cuenta> crear({
     required String nombre,
-    required TipoCuenta tipo,
+    required int tipoId,
     required double saldoInicial,
     required String moneda,
   }) async {
@@ -22,7 +22,7 @@ class CuentasRepository {
       '/accounts',
       data: {
         'nombre': nombre,
-        'tipo': tipo.valor,
+        'account_type_id': tipoId,
         'saldo_inicial': saldoInicial.toStringAsFixed(2),
         'moneda': moneda,
       },
@@ -30,10 +30,10 @@ class CuentasRepository {
     return Cuenta.fromJson(r.data!);
   }
 
-  Future<void> editar(int id, {String? nombre, TipoCuenta? tipo, bool? activa}) =>
+  Future<void> editar(int id, {String? nombre, int? tipoId, bool? activa}) =>
       _api.dio.patch<void>('/accounts/$id', data: {
         'nombre': ?nombre,
-        if (tipo != null) 'tipo': tipo.valor,
+        'account_type_id': ?tipoId,
         'activa': ?activa,
       });
 

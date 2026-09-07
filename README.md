@@ -14,6 +14,13 @@ Tres capas, según el Hito 3:
 | Lógica de negocio | Python + FastAPI | `backend/` |
 | Datos | PostgreSQL 16 | `docker-compose.yml` |
 
+### Qué hace hoy
+
+- **Cuentas** con saldo calculado a partir de los movimientos.
+- **Movimientos**: alta de ingresos y gastos, filtros y borrado.
+- **Informes**: resumen del mes, gasto promedio por día, gasto día por día, en qué se va la plata y de dónde viene (por categoría), y la tendencia del año.
+- **Categorías y tipos de cuenta** propios, además de los del sistema.
+
 Documentación del análisis en [`docs/`](docs/): [requerimientos](docs/requerimientos.md), [modelo de datos](docs/modelo-datos.md) y los [diagramas de casos de uso](docs/diagramas/).
 
 ## Cómo levantar el proyecto
@@ -136,7 +143,7 @@ Con las Command Line Tools solas no alcanza: `flutter doctor` lo reporta como *"
 | Fase 0 | Estructura, base de datos, esqueleto de la API | — | ✅ Listo |
 | Módulo 1 | Autenticación, cuentas, categorías y transacciones | 09/10/2026 | ✅ Listo (backend + app) |
 | Módulo 2 | Presupuestos y metas de ahorro | 16/10/2026 | Pendiente |
-| Módulo 3 | Reportes, gráficos y exportación | 23/10/2026 | Pendiente |
+| Módulo 3 | Informes y gráficos | 23/10/2026 | ✅ Listo · ⏳ falta exportar a PDF/CSV |
 
 ## Flujo de trabajo en Git
 

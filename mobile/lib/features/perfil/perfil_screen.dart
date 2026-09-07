@@ -1,3 +1,4 @@
+import 'package:app_finanzas/features/catalogos/catalogos_screen.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,16 @@ class PerfilScreen extends ConsumerWidget {
           ),
           Center(child: Text(usuario?.email ?? '')),
           const SizedBox(height: 32),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.tune),
+            title: const Text('Categorias y tipos de cuenta'),
+            subtitle: const Text('Crea y edita los tuyos'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const CatalogosScreen()),
+            ),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),

@@ -1,17 +1,14 @@
-"""Enumeraciones compartidas por los modelos."""
+"""Enumeraciones compartidas por los modelos.
+
+El tipo de cuenta no esta aca a proposito: es una tabla (account_types) para
+que el usuario pueda crear los suyos, igual que con las categorias.
+"""
 
 import enum
 
 
-class TipoCuenta(str, enum.Enum):
-    AHORRO = "ahorro"
-    CORRIENTE = "corriente"
-    TARJETA = "tarjeta"
-    EFECTIVO = "efectivo"
-
-
 class TipoMovimiento(str, enum.Enum):
-    """Se usa tanto para categorias como para transacciones."""
+    """Se usa para categorias y para transacciones."""
 
     INGRESO = "ingreso"
     GASTO = "gasto"

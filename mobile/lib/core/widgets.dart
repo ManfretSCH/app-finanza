@@ -63,3 +63,40 @@ class EstadoError extends StatelessWidget {
     );
   }
 }
+
+/// Dialogo de confirmacion para las acciones que no se pueden deshacer.
+Future<bool> confirmar(
+  BuildContext context, {
+  required String titulo,
+  required String mensaje,
+  String textoConfirmar = 'Eliminar',
+}) async {
+  final respuesta = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(titulo),
+      content: Text(mensaje),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(textoConfirmar),
+        ),
+      ],
+    ),
+  );
+  return respuesta ?? false;
+}
+
+/// Mensaje breve al pie de la pantalla.
+///
+/// Se usa sobre todo para los rechazos del backend, como intentar borrar una
+/// categoria que tiene movimientos.
+void mostrarAviso(BuildContext context, String mensaje) {
+  ScaffoldMessenger.of(context)
+    ..clearSnackBars()
+    ..showSnackBar(SnackBar(content: Text(mensaje)));
+}

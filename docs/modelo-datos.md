@@ -7,6 +7,8 @@ Base de datos **PostgreSQL 16**. Seis tablas, todas colgando de `users`.
 ```mermaid
 erDiagram
     users ||--o{ accounts     : "posee"
+    users ||--o{ account_types : "personaliza"
+    account_types ||--o{ accounts : "clasifica"
     users ||--o{ categories   : "personaliza"
     users ||--o{ transactions : "registra"
     users ||--o{ budgets      : "define"
@@ -22,11 +24,17 @@ erDiagram
         string   password_hash
         datetime created_at
     }
+    account_types {
+        int    id PK
+        int    user_id FK "NULL = predefinido del sistema"
+        string nombre
+        string icono
+    }
     accounts {
         int      id PK
         int      user_id FK
+        int      account_type_id FK
         string   nombre
-        enum     tipo "ahorro|corriente|tarjeta|efectivo"
         numeric  saldo_inicial
         string   moneda
         bool     activa
@@ -84,6 +92,8 @@ Si se guardara como campo mutable habría que actualizarlo en cada alta, edició
 **Los montos usan `Numeric(14,2)`, no `float`.** Los números de punto flotante arrastran errores de redondeo (`0.1 + 0.2 != 0.3`), inaceptable cuando se trata de dinero.
 
 **Toda tabla tiene `user_id`.** Cada consulta filtra por el usuario extraído del token JWT, de modo que un usuario nunca puede leer ni modificar datos de otro (RNF-002).
+
+**Los tipos de cuenta son una tabla, no un enum.** Empezaron siendo un enum fijo con cuatro valores escritos en el código, pero eso impedía que alguien registrara, por ejemplo, una billetera virtual o un préstamo. Ahora siguen el mismo patrón que las categorías: los cuatro del sistema tienen `user_id = NULL` y cada usuario puede agregar los suyos. La migración `2f312f981bab` convirtió la columna conservando las cuentas ya cargadas.
 
 **Las categorías predefinidas tienen `user_id = NULL`.** Se cargan una sola vez con el script de seed y son visibles para todos; las categorías personalizadas del usuario conviven con ellas en la misma tabla (RF-003).
 

@@ -5,9 +5,10 @@ Casos de uso del diagrama 02: Crear, Editar, Ver cuentas, Eliminar, Ver saldo.
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession
-from app.models import Account
+from app.models import Account, AccountType
 from app.schemas.account import AccountCreate, AccountOut, AccountUpdate, AccountWithBalance
 from app.services.balances import saldo_de_cuenta, saldos_por_cuenta
 
@@ -33,7 +34,9 @@ def listar_cuentas(
     usuario: CurrentUser, db: DbSession, incluir_inactivas: bool = False
 ) -> list[AccountWithBalance]:
     """Lista las cuentas con su saldo actual ya calculado."""
-    consulta = select(Account).where(Account.user_id == usuario.id)
+    consulta = select(Account).where(Account.user_id == usuario.id).options(
+        selectinload(Account.tipo)
+    )
     if not incluir_inactivas:
         consulta = consulta.where(Account.activa.is_(True))
 
@@ -49,8 +52,21 @@ def listar_cuentas(
     ]
 
 
+def _validar_tipo(db: DbSession, usuario: CurrentUser, account_type_id: int | None) -> None:
+    """El tipo tiene que existir y ser predefinido o del propio usuario."""
+    if account_type_id is None:
+        return
+    tipo = db.get(AccountType, account_type_id)
+    if tipo is None or (tipo.user_id is not None and tipo.user_id != usuario.id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El tipo de cuenta indicado no existe",
+        )
+
+
 @router.post("", response_model=AccountOut, status_code=status.HTTP_201_CREATED)
 def crear_cuenta(datos: AccountCreate, usuario: CurrentUser, db: DbSession) -> Account:
+    _validar_tipo(db, usuario, datos.account_type_id)
     cuenta = Account(user_id=usuario.id, **datos.model_dump())
     db.add(cuenta)
     db.commit()
@@ -72,7 +88,9 @@ def editar_cuenta(
     account_id: int, datos: AccountUpdate, usuario: CurrentUser, db: DbSession
 ) -> Account:
     cuenta = _cuenta_del_usuario(db, usuario, account_id)
-    for campo, valor in datos.model_dump(exclude_unset=True).items():
+    cambios = datos.model_dump(exclude_unset=True)
+    _validar_tipo(db, usuario, cambios.get("account_type_id"))
+    for campo, valor in cambios.items():
         setattr(cuenta, campo, valor)
     db.commit()
     db.refresh(cuenta)

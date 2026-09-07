@@ -20,4 +20,7 @@ class User(Base):
     # Al borrar un usuario se borra todo lo suyo: no deben quedar datos huerfanos.
     accounts = relationship("Account", back_populates="user", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="user", cascade="all, delete-orphan")
+    account_types = relationship(
+        "AccountType", back_populates="user", cascade="all, delete-orphan"
+    )
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")

@@ -1,12 +1,13 @@
 import 'package:app_finanzas/features/cuentas/cuentas_screen.dart';
+import 'package:app_finanzas/features/informes/informes_screen.dart';
 import 'package:app_finanzas/features/perfil/perfil_screen.dart';
 import 'package:app_finanzas/features/transacciones/transacciones_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Pantalla principal con la navegacion inferior.
 ///
-/// Por ahora tiene las tres pestanas del Modulo 1. Presupuestos, Metas y
-/// Reportes se agregan en los Modulos 2 y 3.
+/// Cuentas y Movimientos son del Modulo 1, Informes del Modulo 3.
+/// Presupuestos y Metas se agregan en el Modulo 2.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _pantallas = [
     CuentasScreen(),
     TransaccionesScreen(),
+    InformesScreen(),
     PerfilScreen(),
   ];
 
@@ -40,6 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.receipt_long_outlined),
             selectedIcon: Icon(Icons.receipt_long),
             label: 'Movimientos',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights),
+            label: 'Informes',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

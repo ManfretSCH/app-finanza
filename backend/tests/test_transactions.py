@@ -1,14 +1,10 @@
 """Pruebas de transacciones y categorias (RF-002, RF-003)."""
 
-from tests.conftest import registrar_usuario
+from tests.conftest import crear_cuenta, registrar_usuario
 
 
 def preparar(client, auth):
-    cuenta = client.post(
-        "/api/v1/accounts",
-        json={"nombre": "Efectivo", "tipo": "efectivo", "saldo_inicial": "0.00"},
-        headers=auth,
-    ).json()
+    cuenta = crear_cuenta(client, auth, nombre="Efectivo", saldo="0.00")
     categorias = client.get("/api/v1/categories", headers=auth).json()
     return cuenta, categorias
 

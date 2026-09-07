@@ -7,12 +7,12 @@ Cada requerimiento indica en qué módulo del cronograma (Hito 2) se implementa.
 
 | ID | Nombre | Descripción | Módulo |
 |---|---|---|---|
-| RF-001 | Gestión de cuentas | Crear, editar, eliminar y listar cuentas bancarias o de ahorro. Cada cuenta tiene tipo (ahorro, corriente, tarjeta de crédito, efectivo), saldo inicial y moneda. | 1 |
+| RF-001 | Gestión de cuentas | Crear, editar, eliminar y listar cuentas bancarias o de ahorro. Cada cuenta tiene tipo, saldo inicial y moneda. Los tipos son una tabla editable: las cuatro predefinidas del sistema más las que cree el usuario. | 1 |
 | RF-002 | Registro de transacciones | Registrar ingresos y gastos con monto, categoría, descripción, fecha, cuenta asociada y etiquetas personalizadas. | 1 |
 | RF-003 | Categorización de gastos | Categorías predefinidas (Alimentación, Transporte, Salud, Entretenimiento, etc.) con posibilidad de crear categorías personalizadas. | 1 |
 | RF-004 | Gestión de presupuestos | Presupuestos mensuales por categoría, con alertas al alcanzar el 80 % y el 100 % del límite. | 2 |
 | RF-005 | Metas de ahorro | Metas con fecha objetivo y monto, con seguimiento visual del progreso mediante gráficos. | 2 |
-| RF-006 | Reportes y análisis | Reportes mensuales y anuales: ingresos vs gastos, distribución por categoría y tendencias. | 3 |
+| RF-006 | Reportes y análisis | Resumen mensual (ingresos, gastos, balance), promedio de gasto diario, gasto día por día, distribución de gastos e ingresos por categoría, y tendencia mensual del año. | 3 |
 | RF-007 | Gestión de usuarios | Registro, autenticación y gestión de perfil. Exportación de datos en PDF/CSV. | 1 y 3 |
 
 ## Requerimientos no funcionales
