@@ -13,13 +13,13 @@ Cada requerimiento indica en qué módulo del cronograma (Hito 2) se implementa.
 | RF-004 | Gestión de presupuestos | Presupuestos mensuales por categoría, con alertas al alcanzar el 80 % y el 100 % del límite. | 2 |
 | RF-005 | Metas de ahorro | Metas con fecha objetivo y monto, con seguimiento visual del progreso mediante gráficos. | 2 |
 | RF-006 | Reportes y análisis | Resumen mensual (ingresos, gastos, balance), promedio de gasto diario, gasto día por día, distribución de gastos e ingresos por categoría, y tendencia mensual del año. | 3 |
-| RF-007 | Gestión de usuarios | Registro, autenticación y gestión de perfil. Exportación de datos en PDF/CSV. | 1 y 3 |
+| RF-007 | Gestión de usuarios | Registro, autenticación y gestión de perfil. Exportación del informe mensual en PDF y CSV. | 1 y 3 |
 
 ## Requerimientos no funcionales
 
 | ID | Nombre | Cómo se cumple |
 |---|---|---|
-| RNF-001 | Rendimiento | Índices en las columnas de filtrado (`user_id`, `fecha`, `category_id`); los listados se devuelven paginados y los totales se calculan en la base de datos, no en la app. |
+| RNF-001 | Rendimiento | Índices en las columnas de filtrado (`user_id`, `fecha`, `category_id`); los listados se devuelven paginados y los totales se calculan en la base de datos, no en la app. Los archivos exportables también se generan en el servidor. |
 | RNF-002 | Seguridad | Contraseñas hasheadas con bcrypt (nunca en texto plano), autenticación por JWT firmado, y cada consulta filtrada por el usuario del token para que nadie acceda a datos ajenos. |
 
 ## Casos de uso

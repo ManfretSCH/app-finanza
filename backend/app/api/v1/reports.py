@@ -6,13 +6,14 @@ y de donde viene lo que entra.
 """
 
 from datetime import date
+from enum import Enum
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Response
 
 from app.api.deps import CurrentUser, DbSession
 from app.models.enums import TipoMovimiento
 from app.schemas.report import LineaCategoria, LineaDia, LineaMes, ResumenMensual
-from app.services import reports
+from app.services import exportar, reports
 
 router = APIRouter(prefix="/reports", tags=["informes"])
 
@@ -75,3 +76,41 @@ def tendencia_anual(
     """Los doce meses del ano, para ver la tendencia."""
     _, anio = _periodo(None, anio)
     return [LineaMes(**fila) for fila in reports.por_mes(db, usuario.id, anio)]
+
+
+class FormatoExportacion(str, Enum):
+    CSV = "csv"
+    PDF = "pdf"
+
+
+@router.get(
+    "/export",
+    response_class=Response,
+    responses={200: {"content": {"text/csv": {}, "application/pdf": {}}}},
+)
+def exportar_informe(
+    usuario: CurrentUser,
+    db: DbSession,
+    formato: FormatoExportacion = FormatoExportacion.CSV,
+    mes: int | None = MesActual,
+    anio: int | None = AnioActual,
+) -> Response:
+    """Descarga el informe del mes (RF-006, RF-007).
+
+    CSV para abrir en una planilla, PDF para imprimir o mandar.
+    """
+    mes, anio = _periodo(mes, anio)
+
+    if formato is FormatoExportacion.CSV:
+        contenido = exportar.generar_csv(db, usuario.id, mes, anio)
+        tipo, extension = "text/csv; charset=utf-8", "csv"
+    else:
+        contenido = exportar.generar_pdf(db, usuario.id, mes, anio)
+        tipo, extension = "application/pdf", "pdf"
+
+    archivo = exportar.nombre_de_archivo(mes, anio, extension)
+    return Response(
+        content=contenido,
+        media_type=tipo,
+        headers={"Content-Disposition": f'attachment; filename="{archivo}"'},
+    )

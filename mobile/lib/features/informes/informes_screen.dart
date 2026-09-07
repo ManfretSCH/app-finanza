@@ -3,6 +3,7 @@ import 'package:app_finanzas/core/formato.dart';
 import 'package:app_finanzas/core/tema.dart';
 import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/data/models/informe.dart';
+import 'package:app_finanzas/features/informes/exportar_boton.dart';
 import 'package:app_finanzas/features/informes/widgets.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,10 @@ class InformesScreen extends ConsumerWidget {
     final resumen = ref.watch(resumenProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Informes')),
+      appBar: AppBar(
+        title: const Text('Informes'),
+        actions: const [BotonExportar()],
+      ),
       body: RefreshIndicator(
         onRefresh: () async => refrescarDatos(ref),
         child: ListView(

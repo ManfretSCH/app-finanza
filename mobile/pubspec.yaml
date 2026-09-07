@@ -41,6 +41,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   fl_chart: ^1.2.0
+  share_plus: ^13.3.0
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
