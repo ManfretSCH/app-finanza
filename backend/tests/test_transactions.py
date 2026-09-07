@@ -94,3 +94,47 @@ def test_no_se_puede_registrar_en_la_cuenta_de_otro(client, auth):
         headers=otro,
     )
     assert r.status_code == 404
+
+
+def test_un_usuario_no_ve_las_categorias_de_otro(client, auth):
+    """Aislamiento de categorias (RNF-002).
+
+    Las predefinidas son de todos, pero una categoria que crea alguien es suya:
+    no aparece en la lista de los demas, no la pueden editar ni borrar, y no
+    pueden clasificar sus movimientos con ella.
+    """
+    propia = client.post(
+        "/api/v1/categories",
+        json={"nombre": "Mascotas", "tipo": "gasto", "icono": "pets", "color": "#FF9800"},
+        headers=auth,
+    ).json()
+
+    otro = registrar_usuario(client, email="beto@example.com", nombre="Beto")
+
+    # No la ve: solo las 13 del sistema.
+    categorias_del_otro = client.get("/api/v1/categories", headers=otro).json()
+    assert len(categorias_del_otro) == 13
+    assert "Mascotas" not in [c["nombre"] for c in categorias_del_otro]
+
+    # No la puede modificar ni borrar. Se responde 404 y no 403 a proposito:
+    # un usuario no deberia poder deducir que categorias existen de otros.
+    assert client.patch(
+        f"/api/v1/categories/{propia['id']}", json={"nombre": "Robada"}, headers=otro
+    ).status_code == 404
+    assert client.delete(f"/api/v1/categories/{propia['id']}", headers=otro).status_code == 404
+
+    # Tampoco puede usarla al registrar un movimiento.
+    cuenta_del_otro = crear_cuenta(client, otro, nombre="Efectivo", saldo="0.00")
+    r = client.post(
+        "/api/v1/transactions",
+        json={
+            "account_id": cuenta_del_otro["id"], "category_id": propia["id"],
+            "tipo": "gasto", "monto": "1000.00", "fecha": "2026-09-01",
+        },
+        headers=otro,
+    )
+    assert r.status_code == 404
+
+    # Y el dueño la sigue viendo con normalidad.
+    assert "Mascotas" in [c["nombre"] for c in client.get("/api/v1/categories", headers=auth).json()]
+
