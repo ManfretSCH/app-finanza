@@ -73,6 +73,49 @@ La app apunta al backend según dónde corra, en [`lib/core/api_client.dart`](mo
 
 El backend tiene que estar corriendo antes de abrir la app.
 
+#### Probar en Android
+
+```bash
+flutter run -d emulator-5554
+```
+
+Si no hay ningún emulador arrancado, se abre uno desde el Device Manager de Android Studio, o por consola:
+
+```bash
+~/Library/Android/sdk/emulator/emulator -avd NOMBRE_DEL_AVD
+```
+
+Para que `flutter doctor` quede sin avisos hace falta instalar el componente **cmdline-tools** (Android Studio → Settings → Languages & Frameworks → Android SDK → SDK Tools → *Android SDK Command-line Tools*) y aceptar las licencias del SDK:
+
+```bash
+flutter doctor --android-licenses
+```
+
+#### Probar en iPhone (iOS)
+
+La carpeta `ios/` ya está creada y configurada — identificador `py.edu.ua.finanzas.appFinanzas`, iOS 15 como mínimo. Solo faltan las herramientas de Apple, que se instalan una sola vez:
+
+1. **Xcode** desde el App Store (~10 GB, requiere Apple ID).
+2. Apuntar las herramientas de línea de comandos a Xcode:
+   ```bash
+   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+   ```
+3. Primer arranque de Xcode y sus componentes:
+   ```bash
+   sudo xcodebuild -runFirstLaunch
+   ```
+4. **CocoaPods**, que es lo que enlaza los plugins de Flutter en iOS:
+   ```bash
+   brew install cocoapods
+   ```
+5. Correr la app:
+   ```bash
+   open -a Simulator
+   flutter run -d iPhone
+   ```
+
+Con las Command Line Tools solas no alcanza: `flutter doctor` lo reporta como *"Xcode installation is incomplete"*.
+
 ## Comandos útiles
 
 | Qué | Comando |
