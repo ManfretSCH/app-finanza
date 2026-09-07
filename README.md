@@ -56,15 +56,22 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 
 ### 3. App móvil
 
-> **Todavía no creada.** Falta instalar el SDK de Flutter en la máquina.
-
-Requiere el [SDK de Flutter](https://docs.flutter.dev/get-started/install/macos) y un emulador (Android Studio o Xcode).
+Requiere el [SDK de Flutter](https://docs.flutter.dev/get-started/install/macos) (`brew install --cask flutter`) y un emulador: **Android Studio** o **Xcode completo** (las Command Line Tools solas no alcanzan).
 
 ```bash
 cd mobile
 flutter pub get
 flutter run
 ```
+
+La app apunta al backend según dónde corra, en [`lib/core/api_client.dart`](mobile/lib/core/api_client.dart):
+
+| Dónde corre | Dirección del backend |
+|---|---|
+| Emulador de Android | `http://10.0.2.2:8000` — para el emulador, `localhost` es él mismo, no tu Mac |
+| Simulador de iOS | `http://localhost:8000` |
+
+El backend tiene que estar corriendo antes de abrir la app.
 
 ## Comandos útiles
 
@@ -74,6 +81,8 @@ flutter run
 | Aplicar migraciones | `cd backend && uv run alembic upgrade head` |
 | Correr los tests del backend | `cd backend && uv run pytest` |
 | Revisar el estilo del código Python | `cd backend && uv run ruff check .` |
+| Correr los tests de la app | `cd mobile && flutter test` |
+| Revisar el código Dart | `cd mobile && flutter analyze` |
 | Apagar la base de datos | `docker compose down` |
 | Borrar la base de datos y empezar de cero | `docker compose down -v` |
 
@@ -82,7 +91,7 @@ flutter run
 | Módulo | Contenido | Entrega | Estado |
 |---|---|---|---|
 | Fase 0 | Estructura, base de datos, esqueleto de la API | — | ✅ Listo |
-| Módulo 1 | Autenticación, cuentas, categorías y transacciones | 09/10/2026 | ✅ Backend listo · ⏳ App móvil pendiente |
+| Módulo 1 | Autenticación, cuentas, categorías y transacciones | 09/10/2026 | ✅ Listo (backend + app) |
 | Módulo 2 | Presupuestos y metas de ahorro | 16/10/2026 | Pendiente |
 | Módulo 3 | Reportes, gráficos y exportación | 23/10/2026 | Pendiente |
 
