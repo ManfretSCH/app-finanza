@@ -36,12 +36,39 @@ Guardar esa cadena, se usa en el paso siguiente.
 
 ## 2. Desplegar el backend en Render
 
-1. Entrar a [render.com](https://render.com) y crear una cuenta con GitHub.
-2. **New → Blueprint**, elegir el repositorio. Render lee [`render.yaml`](../render.yaml) y arma el servicio solo.
-3. Antes de crear, pide completar las variables marcadas como `sync: false`. Pegar en **`DATABASE_URL`** la cadena del paso anterior, la modificada.
-4. Crear. El primer despliegue tarda unos minutos: compila la imagen de Docker y aplica las migraciones.
+Entrar a [render.com](https://render.com) y crear una cuenta con GitHub. Después **New +** → **Web Service**.
 
-Las otras variables ya vienen resueltas: `ENTORNO=produccion` y una `SECRET_KEY` aleatoria que Render genera y conserva.
+> El repositorio incluye un [`render.yaml`](../render.yaml) para desplegar por Blueprint, pero esa opción no aparece en el menú "New +" de Render. Creando el servicio a mano queda igual; la diferencia es que la configuración vive en el panel en vez del archivo.
+
+Configuración del servicio:
+
+| Campo | Valor |
+|---|---|
+| Source | el repositorio del proyecto |
+| Name | `finanzas-api` |
+| Language / Runtime | **Docker** |
+| Branch | `main` |
+| **Root Directory** | `backend` |
+| Instance Type | Free |
+| Health Check Path | `/health` |
+
+**El `Root Directory` en `backend` es el campo que más se olvida.** Sin eso Render busca el `Dockerfile` en la raíz del repositorio y el build falla.
+
+Si el repositorio es privado y no aparece en la lista, hay que darle acceso desde GitHub: en el enlace de configuración de la cuenta, elegir "Only select repositories" y marcarlo.
+
+Después, en **Environment Variables**, cargar las tres:
+
+| Clave | Valor |
+|---|---|
+| `ENTORNO` | `produccion` |
+| `DATABASE_URL` | la cadena de Neon del paso anterior, ya modificada |
+| `SECRET_KEY` | una clave propia: `python3 -c "import secrets; print(secrets.token_urlsafe(32))"` |
+
+**`ENTORNO` es fácil de pasar por alto y no da ningún error visible.** Si falta, el servidor arranca igual pero en modo local: `/docs` y `/openapi.json` quedan publicados para cualquiera. Se comprueba con `curl .../health`, que tiene que responder `"entorno":"produccion"`.
+
+Dejar **Auto-Deploy** en `On Commit`: cada push a `main` vuelve a desplegar solo. Por eso conviene que a `main` solo llegue lo revisado por pull request.
+
+El primer despliegue tarda unos minutos: compila la imagen de Docker y aplica las migraciones.
 
 Al terminar queda una dirección tipo `https://finanzas-api.onrender.com`. Para comprobar que anda:
 
