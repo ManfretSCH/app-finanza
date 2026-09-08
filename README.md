@@ -199,11 +199,27 @@ Con las Command Line Tools solas no alcanza: `flutter doctor` lo reporta como *"
 
 ## Flujo de trabajo en Git
 
-Una rama por funcionalidad, pull request, revisión del líder y merge a `main`:
+La rama `main` está protegida: **nadie puede pushear directo a ella**, y todo cambio entra por pull request con la aprobación del líder del grupo. Es lo que se planificó en el Hito 2, ahora aplicado por GitHub y no solo por acuerdo.
+
+Cada funcionalidad va en su propia rama:
 
 ```bash
-git checkout -b feat/nombre-de-la-funcionalidad
+git checkout main && git pull
+git checkout -b feat/presupuestos
 # ... cambios ...
-git commit -m "feat: descripcion breve"
-git push -u origin feat/nombre-de-la-funcionalidad
+git commit -m "Agregar presupuestos mensuales por categoria"
+git push -u origin feat/presupuestos
 ```
+
+Después, desde GitHub, "Compare & pull request". La plantilla recuerda qué verificar antes de pedir revisión.
+
+**Qué pasa si intentás pushear a `main` directamente:** GitHub rechaza el push con un mensaje sobre reglas de protección. No es un error tuyo, es la protección haciendo su trabajo. Creá una rama y abrí un pull request.
+
+Antes de pedir revisión, que todo esté en verde:
+
+```bash
+cd backend && uv run pytest && uv run ruff check .
+cd ../mobile && flutter test && flutter analyze
+```
+
+Cada push a `main` redespliega el backend en Render automáticamente, así que `main` tiene que estar siempre en condiciones de desplegarse. Por eso la protección.
