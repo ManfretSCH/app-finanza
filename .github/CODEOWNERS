@@ -1,0 +1,6 @@
+# Revisor obligatorio de todo el proyecto.
+#
+# GitHub exige la aprobacion de quien figure aca antes de poder fusionar un
+# pull request. Con esto, ningun cambio entra a main sin que lo revise el
+# lider del grupo, aunque otro compañero lo apruebe.
+* @ManfretSCH
