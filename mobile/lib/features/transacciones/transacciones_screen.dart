@@ -56,7 +56,7 @@ class TransaccionesScreen extends ConsumerWidget {
                   return const EstadoVacio(
                     icono: Icons.receipt_long_outlined,
                     titulo: 'Sin movimientos',
-                    detalle: 'Registra tu primer ingreso o gasto con el boton de abajo.',
+                    detalle: 'Registra tu primer ingreso o gasto con el botón de abajo.',
                   );
                 }
                 return RefreshIndicator(
@@ -94,7 +94,7 @@ class TransaccionesScreen extends ConsumerWidget {
                               color: color,
                             ),
                           ),
-                          title: Text(m.categoria?.nombre ?? 'Sin categoria'),
+                          title: Text(m.categoria?.nombre ?? 'Sin categoría'),
                           subtitle: Text(
                             [
                               formatearFecha(m.fecha),
@@ -109,6 +109,9 @@ class TransaccionesScreen extends ConsumerWidget {
                                 .titleMedium
                                 ?.copyWith(color: color),
                           ),
+                          // Tocar abre la edicion; deslizar hacia la izquierda borra.
+                          onTap: () =>
+                              abrirFormularioTransaccion(context, ref, movimiento: m),
                         ),
                       );
                     },
@@ -127,7 +130,7 @@ class TransaccionesScreen extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Eliminar movimiento'),
-        content: const Text('Esta accion no se puede deshacer.'),
+        content: const Text('Esta acción no se puede deshacer.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

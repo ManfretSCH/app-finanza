@@ -12,12 +12,12 @@ from app.models.enums import TipoMovimiento
 
 CATEGORIAS_PREDEFINIDAS: list[tuple[str, TipoMovimiento, str, str]] = [
     # Gastos
-    ("Alimentacion", TipoMovimiento.GASTO, "restaurant", "#FF7043"),
+    ("Alimentación", TipoMovimiento.GASTO, "restaurant", "#FF7043"),
     ("Transporte", TipoMovimiento.GASTO, "directions_bus", "#42A5F5"),
     ("Vivienda", TipoMovimiento.GASTO, "home", "#8D6E63"),
     ("Servicios", TipoMovimiento.GASTO, "bolt", "#FFA726"),
     ("Salud", TipoMovimiento.GASTO, "local_hospital", "#EF5350"),
-    ("Educacion", TipoMovimiento.GASTO, "school", "#5C6BC0"),
+    ("Educación", TipoMovimiento.GASTO, "school", "#5C6BC0"),
     ("Entretenimiento", TipoMovimiento.GASTO, "movie", "#AB47BC"),
     ("Ropa", TipoMovimiento.GASTO, "checkroom", "#EC407A"),
     ("Otros gastos", TipoMovimiento.GASTO, "category", "#78909C"),
@@ -32,7 +32,7 @@ CATEGORIAS_PREDEFINIDAS: list[tuple[str, TipoMovimiento, str, str]] = [
 TIPOS_DE_CUENTA_PREDEFINIDOS: list[tuple[str, str]] = [
     ("Caja de ahorro", "savings"),
     ("Cuenta corriente", "account_balance"),
-    ("Tarjeta de credito", "credit_card"),
+    ("Tarjeta de crédito", "credit_card"),
     ("Efectivo", "payments"),
 ]
 

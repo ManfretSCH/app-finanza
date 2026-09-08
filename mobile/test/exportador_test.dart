@@ -5,7 +5,7 @@ import 'package:app_finanzas/core/exportador.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('el nombre del archivo lleva el mes con dos digitos', () {
+  test('el nombre del archivo lleva el mes con dos dígitos', () {
     expect(nombreDeArchivo(9, 2026, 'csv'), 'finanzas-2026-09.csv');
     expect(nombreDeArchivo(12, 2026, 'pdf'), 'finanzas-2026-12.pdf');
     expect(nombreDeArchivo(1, 2026, 'csv'), 'finanzas-2026-01.csv');

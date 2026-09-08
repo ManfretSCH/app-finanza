@@ -20,10 +20,10 @@ class CatalogosScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Categorias y tipos'),
+          title: const Text('Categorías y tipos'),
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'Categorias', icon: Icon(Icons.label_outline)),
+              Tab(text: 'Categorías', icon: Icon(Icons.label_outline)),
               Tab(text: 'Tipos de cuenta', icon: Icon(Icons.account_balance_wallet_outlined)),
             ],
           ),
@@ -48,7 +48,7 @@ class _PestanaCategorias extends ConsumerWidget {
         heroTag: 'nueva-categoria',
         onPressed: () => abrirFormularioCategoria(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Nueva categoria'),
+        label: const Text('Nueva categoría'),
       ),
       body: categorias.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -113,8 +113,8 @@ class _FilaCategoria extends ConsumerWidget {
   Future<void> _eliminar(BuildContext context, WidgetRef ref) async {
     final confirmado = await confirmar(
       context,
-      titulo: 'Eliminar categoria',
-      mensaje: 'Se eliminara "${categoria.nombre}".',
+      titulo: 'Eliminar categoría',
+      mensaje: 'Se eliminará "${categoria.nombre}".',
     );
     if (!confirmado) return;
 
@@ -177,7 +177,7 @@ class _PestanaTiposDeCuenta extends ConsumerWidget {
                               final confirmado = await confirmar(
                                 context,
                                 titulo: 'Eliminar tipo de cuenta',
-                                mensaje: 'Se eliminara "${tipo.nombre}".',
+                                mensaje: 'Se eliminará "${tipo.nombre}".',
                               );
                               if (!confirmado) return;
                               try {

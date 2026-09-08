@@ -20,7 +20,7 @@ void main() {
     );
   });
 
-  test('la direccion definida al compilar gana sobre la de desarrollo', () {
+  test('la dirección definida al compilar gana sobre la de desarrollo', () {
     // Es el caso del APK que se reparte al equipo: apunta a la IP de la
     // maquina donde corre el backend.
     const enLaRedLocal = 'http://192.168.0.5:8000/api/v1';

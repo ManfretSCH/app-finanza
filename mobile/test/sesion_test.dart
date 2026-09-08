@@ -89,7 +89,7 @@ void main() {
     expect(cuentas.llamadas, greaterThan(llamadasConAna));
   });
 
-  test('sin sesion iniciada el id del usuario es null', () async {
+  test('sin sesión iniciada el id del usuario es null', () async {
     final auth = AuthRepositoryFalso();
     final contenedor = ProviderContainer(
       overrides: [authRepositoryProvider.overrideWithValue(auth)],

@@ -26,7 +26,7 @@ def get_current_user(
     """
     credenciales_invalidas = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credenciales invalidas o sesion vencida",
+        detail="Credenciales inválidas o sesión vencida",
         headers={"WWW-Authenticate": "Bearer"},
     )
 

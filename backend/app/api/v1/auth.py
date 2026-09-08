@@ -48,7 +48,7 @@ def iniciar_sesion(datos: LoginRequest, peticion: Request, db: DbSession) -> Tok
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=(
                 "Demasiados intentos fallidos. "
-                f"Espera {settings.VENTANA_LOGIN_MINUTOS} minutos y volve a intentar."
+                f"Esperá {settings.VENTANA_LOGIN_MINUTOS} minutos y volvé a intentar."
             ),
         )
 
@@ -58,7 +58,7 @@ def iniciar_sesion(datos: LoginRequest, peticion: Request, db: DbSession) -> Tok
         limites.registrar_fallo(ip)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Correo o contrasena incorrectos",
+            detail="Correo o contraseña incorrectos",
         )
 
     limites.limpiar(ip)
@@ -76,7 +76,7 @@ def actualizar_perfil(datos: UserUpdate, usuario: CurrentUser, db: DbSession) ->
     if cambia_email and db.scalar(select(User).where(User.email == datos.email)):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Ese correo ya esta en uso",
+            detail="Ese correo ya está en uso",
         )
     for campo, valor in datos.model_dump(exclude_unset=True).items():
         setattr(usuario, campo, valor)
@@ -91,7 +91,7 @@ def cambiar_password(datos: PasswordChange, usuario: CurrentUser, db: DbSession)
     if not verify_password(datos.password_actual, usuario.password_hash):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="La contrasena actual no es correcta",
+            detail="La contraseña actual no es correcta",
         )
     usuario.password_hash = hash_password(datos.password_nueva)
     db.commit()

@@ -17,7 +17,7 @@ def mes_cargado(client, auth):
     """Septiembre de 2026: 3.000.000 de ingreso y 300.000 de gastos en 3 dias."""
     cuenta = crear_cuenta(client, auth, saldo="0.00")
     categorias = client.get("/api/v1/categories", headers=auth).json()
-    alimentacion = next(c for c in categorias if c["nombre"] == "Alimentacion")
+    alimentacion = next(c for c in categorias if c["nombre"] == "Alimentación")
     transporte = next(c for c in categorias if c["nombre"] == "Transporte")
     salario = next(c for c in categorias if c["nombre"] == "Salario")
 
@@ -77,7 +77,7 @@ def test_en_que_se_va_la_plata(client, auth, mes_cargado):
 
     assert len(filas) == 2
     # Ordenado de mayor a menor.
-    assert filas[0]["categoria"]["nombre"] == "Alimentacion"
+    assert filas[0]["categoria"]["nombre"] == "Alimentación"
     assert float(filas[0]["total"]) == 200000.0
     assert filas[0]["porcentaje"] == pytest.approx(66.7, abs=0.1)
 

@@ -9,7 +9,7 @@ def test_los_predefinidos_estan_disponibles(client, auth):
     assert {t["nombre"] for t in tipos} == {
         "Caja de ahorro",
         "Cuenta corriente",
-        "Tarjeta de credito",
+        "Tarjeta de crédito",
         "Efectivo",
     }
     assert all(t["es_predefinido"] for t in tipos)

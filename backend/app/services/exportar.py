@@ -76,7 +76,7 @@ def generar_csv(db: Session, user_id: int, mes: int, anio: int) -> bytes:
     salida = io.StringIO()
     escritor = csv.writer(salida, delimiter=";", lineterminator="\r\n")
 
-    escritor.writerow(["Fecha", "Tipo", "Categoria", "Cuenta", "Monto", "Descripcion"])
+    escritor.writerow(["Fecha", "Tipo", "Categoría", "Cuenta", "Monto", "Descripción"])
 
     movimientos = _movimientos_del_mes(db, user_id, mes, anio)
     for m in movimientos:
@@ -129,7 +129,7 @@ def _pie_de_pagina(canvas, documento) -> None:
     canvas.setFont("Helvetica", 7)
     canvas.setFillColorRGB(0.45, 0.45, 0.45)
     canvas.drawRightString(
-        documento.pagesize[0] - 20 * 2.83, 12 * 2.83, f"Pagina {documento.page}"
+        documento.pagesize[0] - 20 * 2.83, 12 * 2.83, f"Página {documento.page}"
     )
     canvas.drawString(20 * 2.83, 12 * 2.83, "Generado por Mis Finanzas")
     canvas.restoreState()
@@ -189,7 +189,7 @@ def generar_pdf(db: Session, user_id: int, mes: int, anio: int) -> bytes:
                 ["Ingresos del mes", _monto_es(resumen["ingresos"])],
                 ["Gastos del mes", _monto_es(resumen["gastos"])],
                 ["Balance", _monto_es(resumen["balance"])],
-                ["Gasto promedio por dia", _monto_es(resumen["promedio_diario_gasto"])],
+                ["Gasto promedio por día", _monto_es(resumen["promedio_diario_gasto"])],
                 ["Movimientos registrados", str(resumen["cantidad_movimientos"])],
             ],
             anchos=[110, 60],
@@ -199,7 +199,7 @@ def generar_pdf(db: Session, user_id: int, mes: int, anio: int) -> bytes:
     partes.append(Spacer(1, 3 * mm))
     partes.append(
         Paragraph(
-            f"El promedio se calcula sobre {resumen['dias_considerados']} dias.", nota
+            f"El promedio se calcula sobre {resumen['dias_considerados']} días.", nota
         )
     )
 
@@ -210,7 +210,7 @@ def generar_pdf(db: Session, user_id: int, mes: int, anio: int) -> bytes:
             return contenido
         contenido.append(
             _tabla(
-                [["Categoria", "Movimientos", "Porcentaje", "Total"]]
+                [["Categoría", "Movimientos", "Porcentaje", "Total"]]
                 + [
                     [
                         f["categoria"].nombre,
@@ -227,10 +227,10 @@ def generar_pdf(db: Session, user_id: int, mes: int, anio: int) -> bytes:
         return contenido
 
     partes += bloque_categorias(
-        "En que se fue la plata", gastos, "No hubo gastos en este mes."
+        "En qué se fue la plata", gastos, "No hubo gastos en este mes."
     )
     partes += bloque_categorias(
-        "De donde vino la plata", ingresos, "No hubo ingresos en este mes."
+        "De dónde vino la plata", ingresos, "No hubo ingresos en este mes."
     )
 
     # Detalle
@@ -238,7 +238,7 @@ def generar_pdf(db: Session, user_id: int, mes: int, anio: int) -> bytes:
     if movimientos:
         partes.append(
             _tabla(
-                [["Fecha", "Tipo", "Categoria", "Cuenta", "Descripcion", "Monto"]]
+                [["Fecha", "Tipo", "Categoría", "Cuenta", "Descripción", "Monto"]]
                 + [
                     [
                         m.fecha.strftime("%d/%m"),

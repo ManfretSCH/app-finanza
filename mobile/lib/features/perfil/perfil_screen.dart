@@ -37,7 +37,7 @@ class PerfilScreen extends ConsumerWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.tune),
-            title: const Text('Categorias y tipos de cuenta'),
+            title: const Text('Categorías y tipos de cuenta'),
             subtitle: const Text('Crea y edita los tuyos'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
@@ -47,7 +47,7 @@ class PerfilScreen extends ConsumerWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Cerrar sesion'),
+            title: const Text('Cerrar sesión'),
             onTap: () => ref.read(sesionProvider.notifier).cerrarSesion(),
           ),
         ],

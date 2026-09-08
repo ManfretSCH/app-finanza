@@ -138,3 +138,72 @@ def test_un_usuario_no_ve_las_categorias_de_otro(client, auth):
     # Y el dueño la sigue viendo con normalidad.
     assert "Mascotas" in [c["nombre"] for c in client.get("/api/v1/categories", headers=auth).json()]
 
+
+def test_editar_cambia_el_tipo_y_la_cuenta(client, auth):
+    """Editar es lo que permite corregir un movimiento cargado mal.
+
+    Es el caso de haber registrado un ingreso como gasto, o en la cuenta
+    equivocada: se corrige sin borrar y volver a cargar.
+    """
+    origen = crear_cuenta(client, auth, nombre="Caja", saldo="0.00")
+    destino = crear_cuenta(client, auth, nombre="Efectivo", saldo="0.00")
+    categorias = client.get("/api/v1/categories", headers=auth).json()
+    gasto = next(c for c in categorias if c["tipo"] == "gasto")
+    ingreso = next(c for c in categorias if c["tipo"] == "ingreso")
+
+    movimiento = client.post(
+        "/api/v1/transactions",
+        json={
+            "account_id": origen["id"], "category_id": gasto["id"], "tipo": "gasto",
+            "monto": "100000.00", "fecha": "2026-09-01", "descripcion": "Mal cargado",
+        },
+        headers=auth,
+    ).json()
+
+    assert float(
+        client.get(f"/api/v1/accounts/{origen['id']}", headers=auth).json()["saldo_actual"]
+    ) == -100000.0
+
+    r = client.patch(
+        f"/api/v1/transactions/{movimiento['id']}",
+        json={
+            "account_id": destino["id"], "category_id": ingreso["id"], "tipo": "ingreso",
+            "monto": "250000.00", "fecha": "2026-09-05", "descripcion": "Corregido",
+        },
+        headers=auth,
+    )
+    assert r.status_code == 200
+    editado = r.json()
+    assert editado["tipo"] == "ingreso"
+    assert editado["account_id"] == destino["id"]
+    assert float(editado["monto"]) == 250000.0
+    assert editado["descripcion"] == "Corregido"
+
+    # Los dos saldos tienen que reflejar el cambio: el movimiento se fue de una
+    # cuenta y aparecio en la otra, ya como ingreso.
+    saldos = {
+        c["nombre"]: float(c["saldo_actual"])
+        for c in client.get("/api/v1/accounts", headers=auth).json()
+    }
+    assert saldos["Caja"] == 0.0
+    assert saldos["Efectivo"] == 250000.0
+
+
+def test_no_se_puede_editar_el_movimiento_de_otro(client, auth):
+    """Aislamiento al editar (RNF-002)."""
+    cuenta, categorias = preparar(client, auth)
+    movimiento = client.post(
+        "/api/v1/transactions",
+        json={
+            "account_id": cuenta["id"], "category_id": categorias[0]["id"],
+            "tipo": "gasto", "monto": "1000.00", "fecha": "2026-09-01",
+        },
+        headers=auth,
+    ).json()
+
+    otro = registrar_usuario(client, email="beto@example.com", nombre="Beto")
+    r = client.patch(
+        f"/api/v1/transactions/{movimiento['id']}", json={"monto": "999999.00"}, headers=otro
+    )
+    assert r.status_code == 404
+

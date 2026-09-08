@@ -15,7 +15,7 @@ def mes_cargado(client, auth):
     """Septiembre de 2026 con un ingreso y dos gastos."""
     cuenta = crear_cuenta(client, auth, nombre="Caja", saldo="0.00")
     categorias = client.get("/api/v1/categories", headers=auth).json()
-    alimentacion = next(c for c in categorias if c["nombre"] == "Alimentacion")
+    alimentacion = next(c for c in categorias if c["nombre"] == "Alimentación")
     salario = next(c for c in categorias if c["nombre"] == "Salario")
 
     for categoria, tipo, monto, fecha, desc in [
@@ -49,7 +49,7 @@ def test_el_csv_trae_los_movimientos_del_mes(client, auth, mes_cargado):
     assert 'filename="finanzas-2026-09.csv"' in r.headers["content-disposition"]
 
     filas = leer_csv(r.content)
-    assert filas[0] == ["Fecha", "Tipo", "Categoria", "Cuenta", "Monto", "Descripcion"]
+    assert filas[0] == ["Fecha", "Tipo", "Categoría", "Cuenta", "Monto", "Descripción"]
 
     movimientos = [f for f in filas[1:] if f and f[0] and "/" in f[0]]
     assert len(movimientos) == 3  # el de agosto no aparece

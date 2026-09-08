@@ -39,14 +39,14 @@ def crear_categoria(datos: CategoryCreate, usuario: CurrentUser, db: DbSession) 
 def _categoria_propia(db: DbSession, usuario: CurrentUser, category_id: int) -> Category:
     categoria = db.get(Category, category_id)
     if categoria is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria no encontrada")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
     if categoria.user_id is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Las categorias predefinidas del sistema no se pueden modificar",
+            detail="Las categorías predefinidas del sistema no se pueden modificar",
         )
     if categoria.user_id != usuario.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoria no encontrada")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
     return categoria
 
 
@@ -72,7 +72,7 @@ def eliminar_categoria(category_id: int, usuario: CurrentUser, db: DbSession) ->
     if en_uso:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="La categoria tiene movimientos asociados y no se puede eliminar",
+            detail="La categoría tiene movimientos asociados y no se puede eliminar",
         )
     db.delete(categoria)
     db.commit()
