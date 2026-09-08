@@ -109,7 +109,7 @@ class _MesSinMovimientos extends StatelessWidget {
       child: EstadoVacio(
         icono: Icons.insights_outlined,
         titulo: 'Sin movimientos en este mes',
-        detalle: 'Registra ingresos y gastos para ver aca tus informes.',
+        detalle: 'Registra ingresos y gastos para ver acá tus informes.',
       ),
     );
   }
@@ -181,7 +181,7 @@ class _PromedioDiario extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Gastas por dia', style: Theme.of(context).textTheme.labelLarge),
+                  Text('Gastas por día', style: Theme.of(context).textTheme.labelLarge),
                   const SizedBox(height: 4),
                   Text(
                     formatearMonto(resumen.promedioDiarioGasto),
@@ -191,7 +191,7 @@ class _PromedioDiario extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Promedio sobre ${resumen.diasConsiderados} dias · '
+                    'Promedio sobre ${resumen.diasConsiderados} días · '
                     '${resumen.cantidadMovimientos} movimientos',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -211,7 +211,7 @@ class _GastoPorDia extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SeccionInforme(
-      titulo: 'Gasto dia por dia',
+      titulo: 'Gasto día por día',
       subtitulo: 'Toca una barra para ver el monto exacto',
       child: ref.watch(porDiaProvider).when(
             loading: () => const _Cargando(),
@@ -228,8 +228,8 @@ class _DondeSeVaLaPlata extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SeccionInforme(
-      titulo: 'En que se va tu plata',
-      subtitulo: 'Gastos del mes por categoria, de mayor a menor',
+      titulo: 'En qué se va tu plata',
+      subtitulo: 'Gastos del mes por categoría, de mayor a menor',
       child: ref.watch(gastosPorCategoriaProvider).when(
             loading: () => const _Cargando(),
             error: (e, _) => Text(mensajeDeError(e)),
@@ -248,8 +248,8 @@ class _DeDondeVieneLaPlata extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SeccionInforme(
-      titulo: 'De donde viene tu plata',
-      subtitulo: 'Ingresos del mes por categoria',
+      titulo: 'De dónde viene tu plata',
+      subtitulo: 'Ingresos del mes por categoría',
       child: ref.watch(ingresosPorCategoriaProvider).when(
             loading: () => const _Cargando(),
             error: (e, _) => Text(mensajeDeError(e)),
@@ -270,7 +270,7 @@ class _TendenciaDelAnio extends ConsumerWidget {
     final anio = ref.watch(mesSeleccionadoProvider).year;
 
     return SeccionInforme(
-      titulo: 'Como viene el ano',
+      titulo: 'Cómo viene el año',
       subtitulo: 'Ingresos contra gastos, mes a mes, en $anio',
       child: ref.watch(tendenciaAnualProvider).when(
             loading: () => const _Cargando(),

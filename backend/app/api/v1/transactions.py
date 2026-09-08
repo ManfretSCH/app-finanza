@@ -45,7 +45,7 @@ def _validar_referencias(
             categoria.user_id is not None and categoria.user_id != usuario.id
         ):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="La categoria indicada no existe"
+                status_code=status.HTTP_404_NOT_FOUND, detail="La categoría indicada no existe"
             )
 
 

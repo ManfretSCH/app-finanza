@@ -33,7 +33,7 @@ class CuentasScreen extends ConsumerWidget {
           if (lista.isEmpty) {
             return const EstadoVacio(
               icono: Icons.account_balance_wallet_outlined,
-              titulo: 'Todavia no tienes cuentas',
+              titulo: 'Todavía no tienes cuentas',
               detalle: 'Crea tu primera cuenta para empezar a registrar movimientos.',
             );
           }
@@ -190,7 +190,7 @@ class _FormularioCuentaState extends ConsumerState<_FormularioCuenta> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Puedes crear tus propios tipos desde Perfil > Categorias y tipos.',
+                  'Puedes crear tus propios tipos desde Perfil > Categorías y tipos.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
@@ -201,7 +201,7 @@ class _FormularioCuentaState extends ConsumerState<_FormularioCuenta> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
                   final n = double.tryParse((v ?? '').replaceAll(',', '.'));
-                  if (n == null) return 'Ingresa un numero valido';
+                  if (n == null) return 'Ingresa un número válido';
                   return null;
                 },
               ),

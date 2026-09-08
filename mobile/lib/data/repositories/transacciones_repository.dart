@@ -43,5 +43,24 @@ class TransaccionesRepository {
         if (descripcion != null && descripcion.isNotEmpty) 'descripcion': descripcion,
       });
 
+  Future<void> editar(
+    int id, {
+    required int cuentaId,
+    required int categoriaId,
+    required TipoMovimiento tipo,
+    required double monto,
+    required DateTime fecha,
+    String? descripcion,
+  }) =>
+      _api.dio.patch<void>('/transactions/$id', data: {
+        'account_id': cuentaId,
+        'category_id': categoriaId,
+        'tipo': tipo.valor,
+        'monto': monto.toStringAsFixed(2),
+        'fecha': fecha.toIso8601String().split('T').first,
+        // Se manda siempre, incluso vacia, para poder borrar una descripcion.
+        'descripcion': (descripcion ?? '').isEmpty ? null : descripcion,
+      });
+
   Future<void> eliminar(int id) => _api.dio.delete<void>('/transactions/$id');
 }

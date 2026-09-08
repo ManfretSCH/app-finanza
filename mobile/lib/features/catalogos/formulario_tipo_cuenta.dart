@@ -88,7 +88,7 @@ class _FormularioTipoCuentaState extends ConsumerState<_FormularioTipoCuenta> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Por ejemplo: billetera virtual, cuenta en dolares, prestamo.',
+              'Por ejemplo: billetera virtual, cuenta en dólares, préstamo.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 20),

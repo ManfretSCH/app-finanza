@@ -2,22 +2,31 @@ import 'package:app_finanzas/core/api_client.dart';
 import 'package:app_finanzas/core/formato.dart';
 import 'package:app_finanzas/data/models/categoria.dart';
 import 'package:app_finanzas/data/models/cuenta.dart';
+import 'package:app_finanzas/data/models/transaccion.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Abre el formulario de alta y refresca los datos si se registro algo.
-Future<void> abrirFormularioTransaccion(BuildContext context, WidgetRef ref) async {
-  final registrada = await showModalBottomSheet<bool>(
+/// Abre el formulario de movimientos y refresca los datos si se guardo algo.
+///
+/// Sin [movimiento] da de alta uno nuevo; con [movimiento] edita ese.
+Future<void> abrirFormularioTransaccion(
+  BuildContext context,
+  WidgetRef ref, {
+  Transaccion? movimiento,
+}) async {
+  final guardado = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => const _FormularioTransaccion(),
+    builder: (_) => _FormularioTransaccion(movimiento: movimiento),
   );
-  if (registrada ?? false) refrescarDatos(ref);
+  if (guardado ?? false) refrescarDatos(ref);
 }
 
 class _FormularioTransaccion extends ConsumerStatefulWidget {
-  const _FormularioTransaccion();
+  const _FormularioTransaccion({this.movimiento});
+
+  final Transaccion? movimiento;
 
   @override
   ConsumerState<_FormularioTransaccion> createState() => _FormularioTransaccionState();
@@ -25,15 +34,34 @@ class _FormularioTransaccion extends ConsumerStatefulWidget {
 
 class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> {
   final _formulario = GlobalKey<FormState>();
-  final _monto = TextEditingController();
-  final _descripcion = TextEditingController();
+  late final TextEditingController _monto;
+  late final TextEditingController _descripcion;
 
-  TipoMovimiento _tipo = TipoMovimiento.gasto;
-  DateTime _fecha = DateTime.now();
+  late TipoMovimiento _tipo;
+  late DateTime _fecha;
   int? _cuentaId;
   int? _categoriaId;
   bool _cargando = false;
   String? _error;
+
+  bool get _esEdicion => widget.movimiento != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final m = widget.movimiento;
+    // Al editar se precarga todo, incluido el tipo y la cuenta: cambiarlos es
+    // justamente lo que permite pasar un movimiento de ingreso a gasto o
+    // moverlo a otra cuenta sin tener que borrarlo y cargarlo de nuevo.
+    _monto = TextEditingController(
+      text: m == null ? '' : m.monto.toStringAsFixed(0),
+    );
+    _descripcion = TextEditingController(text: m?.descripcion ?? '');
+    _tipo = m?.tipo ?? TipoMovimiento.gasto;
+    _fecha = m?.fecha ?? DateTime.now();
+    _cuentaId = m?.cuentaId;
+    _categoriaId = m?.categoriaId;
+  }
 
   @override
   void dispose() {
@@ -45,7 +73,7 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
   Future<void> _guardar() async {
     if (!_formulario.currentState!.validate()) return;
     if (_cuentaId == null || _categoriaId == null) {
-      setState(() => _error = 'Elige la cuenta y la categoria');
+      setState(() => _error = 'Elige la cuenta y la categoría');
       return;
     }
     setState(() {
@@ -53,14 +81,28 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
       _error = null;
     });
     try {
-      await ref.read(transaccionesRepositoryProvider).registrar(
-            cuentaId: _cuentaId!,
-            categoriaId: _categoriaId!,
-            tipo: _tipo,
-            monto: double.parse(_monto.text.replaceAll(',', '.')),
-            fecha: _fecha,
-            descripcion: _descripcion.text.trim(),
-          );
+      final repo = ref.read(transaccionesRepositoryProvider);
+      final monto = double.parse(_monto.text.replaceAll(',', '.'));
+      if (_esEdicion) {
+        await repo.editar(
+          widget.movimiento!.id,
+          cuentaId: _cuentaId!,
+          categoriaId: _categoriaId!,
+          tipo: _tipo,
+          monto: monto,
+          fecha: _fecha,
+          descripcion: _descripcion.text.trim(),
+        );
+      } else {
+        await repo.registrar(
+          cuentaId: _cuentaId!,
+          categoriaId: _categoriaId!,
+          tipo: _tipo,
+          monto: monto,
+          fecha: _fecha,
+          descripcion: _descripcion.text.trim(),
+        );
+      }
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) setState(() => _error = mensajeDeError(e));
@@ -92,6 +134,13 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                  _esEdicion ? 'Editar movimiento' : 'Nuevo movimiento',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
               SegmentedButton<TipoMovimiento>(
                 segments: const [
                   ButtonSegment(
@@ -116,10 +165,12 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
                 controller: _monto,
                 decoration: const InputDecoration(labelText: 'Monto', suffixText: 'PYG'),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                autofocus: true,
+                // Al editar no conviene abrir el teclado solo: el usuario
+                // quizas viene a cambiar la categoria, no el monto.
+                autofocus: !_esEdicion,
                 validator: (v) {
                   final n = double.tryParse((v ?? '').replaceAll(',', '.'));
-                  if (n == null) return 'Ingresa un numero valido';
+                  if (n == null) return 'Ingresa un número válido';
                   if (n <= 0) return 'El monto debe ser mayor a cero';
                   return null;
                 },
@@ -137,12 +188,12 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 initialValue: _categoriaId,
-                decoration: const InputDecoration(labelText: 'Categoria'),
+                decoration: const InputDecoration(labelText: 'Categoría'),
                 items: categorias
                     .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nombre)))
                     .toList(),
                 onChanged: (v) => setState(() => _categoriaId = v),
-                validator: (v) => v == null ? 'Elige una categoria' : null,
+                validator: (v) => v == null ? 'Elige una categoría' : null,
               ),
               const SizedBox(height: 16),
               ListTile(
@@ -164,7 +215,7 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
               TextFormField(
                 controller: _descripcion,
                 decoration: const InputDecoration(
-                  labelText: 'Descripcion',
+                  labelText: 'Descripción',
                   helperText: 'Opcional',
                 ),
                 textCapitalization: TextCapitalization.sentences,

@@ -55,7 +55,7 @@ void main() {
     expect(cuenta.tipo, isNull);
   });
 
-  test('categoria: el color hexadecimal se convierte al entero de Flutter', () {
+  test('categoría: el color hexadecimal se convierte al entero de Flutter', () {
     final categoria = Categoria.fromJson({
       'id': 12,
       'nombre': 'Inversiones',
@@ -71,7 +71,7 @@ void main() {
     expect(categoria.colorEntero, 0xFF9CCC65);
   });
 
-  test('transaccion: incluye la categoria anidada que manda el backend', () {
+  test('transacción: incluye la categoría anidada que manda el backend', () {
     final movimiento = Transaccion.fromJson({
       'id': 1,
       'account_id': 1,
@@ -99,7 +99,7 @@ void main() {
     expect(movimiento.categoria?.nombre, 'Alimentacion');
   });
 
-  test('transaccion: un ingreso se marca como tal', () {
+  test('transacción: un ingreso se marca como tal', () {
     final movimiento = Transaccion.fromJson({
       'id': 2,
       'account_id': 1,
@@ -151,7 +151,7 @@ void main() {
     expect(resumen.sinDatos, isTrue);
   });
 
-  test('linea por categoria: trae el porcentaje ya calculado por el backend', () {
+  test('línea por categoría: trae el porcentaje ya calculado por el backend', () {
     final linea = LineaCategoria.fromJson({
       'categoria': {
         'id': 1,
@@ -171,7 +171,7 @@ void main() {
     expect(linea.porcentaje, 66.7);
   });
 
-  test('linea por dia: un dia sin movimientos llega en cero', () {
+  test('línea por día: un día sin movimientos llega en cero', () {
     final dia = LineaDia.fromJson({
       'fecha': '2026-09-02',
       'ingresos': '0.00',
@@ -182,7 +182,7 @@ void main() {
     expect(dia.gastos, 0.0);
   });
 
-  test('linea por mes: se detecta un mes sin datos para el grafico anual', () {
+  test('línea por mes: se detecta un mes sin datos para el gráfico anual', () {
     final conDatos = LineaMes.fromJson({
       'mes': 9,
       'ingresos': '3000000.00',

@@ -96,7 +96,7 @@ class _FormularioCategoriaState extends ConsumerState<_FormularioCategoria> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                _esEdicion ? 'Editar categoria' : 'Nueva categoria',
+                _esEdicion ? 'Editar categoría' : 'Nueva categoría',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 20),
@@ -115,7 +115,7 @@ class _FormularioCategoriaState extends ConsumerState<_FormularioCategoria> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.info_outline),
-                  title: Text('Categoria de ${_tipo.etiqueta.toLowerCase()}'),
+                  title: Text('Categoría de ${_tipo.etiqueta.toLowerCase()}'),
                   subtitle: const Text('El tipo no se puede cambiar'),
                 )
               else

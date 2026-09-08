@@ -71,19 +71,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 32),
                   TextFormField(
                     controller: _email,
-                    decoration: const InputDecoration(labelText: 'Correo electronico'),
+                    decoration: const InputDecoration(labelText: 'Correo electrónico'),
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
                     validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'Ingresa un correo valido' : null,
+                        (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _password,
-                    decoration: const InputDecoration(labelText: 'Contrasena'),
+                    decoration: const InputDecoration(labelText: 'Contraseña'),
                     obscureText: true,
                     validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Ingresa tu contrasena' : null,
+                        (v == null || v.isEmpty) ? 'Ingresa tu contraseña' : null,
                   ),
                   if (_error != null) ...[
                     const SizedBox(height: 16),
@@ -102,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Iniciar sesion'),
+                        : const Text('Iniciar sesión'),
                   ),
                   TextButton(
                     onPressed: _cargando

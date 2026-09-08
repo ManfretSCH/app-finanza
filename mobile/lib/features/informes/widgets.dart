@@ -257,7 +257,7 @@ class GraficoAnual extends StatelessWidget {
         .map((m) => m.ingresos > m.gastos ? m.ingresos : m.gastos)
         .fold<double>(0, (a, b) => a > b ? a : b);
     if (maximo == 0) {
-      return const _SinDatos(mensaje: 'Todavia no hay movimientos este ano.');
+      return const _SinDatos(mensaje: 'Todavía no hay movimientos este año.');
     }
 
     return Column(

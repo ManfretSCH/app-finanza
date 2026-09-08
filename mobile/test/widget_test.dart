@@ -33,21 +33,21 @@ Future<void> montarApp(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('sin sesion iniciada se muestra la pantalla de login', (tester) async {
+  testWidgets('sin sesión iniciada se muestra la pantalla de login', (tester) async {
     await montarApp(tester);
 
     expect(find.byType(LoginScreen), findsOneWidget);
     expect(find.text('Mis Finanzas'), findsOneWidget);
   });
 
-  testWidgets('el login valida el correo y la contrasena antes de enviar', (tester) async {
+  testWidgets('el login valida el correo y la contraseña antes de enviar', (tester) async {
     await montarApp(tester);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Iniciar sesion'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Iniciar sesión'));
     await tester.pump();
 
-    expect(find.text('Ingresa un correo valido'), findsOneWidget);
-    expect(find.text('Ingresa tu contrasena'), findsOneWidget);
+    expect(find.text('Ingresa un correo válido'), findsOneWidget);
+    expect(find.text('Ingresa tu contraseña'), findsOneWidget);
   });
 
   testWidgets('desde el login se puede abrir el registro', (tester) async {
@@ -56,10 +56,10 @@ void main() {
     await tester.tap(find.text('No tengo cuenta, quiero registrarme'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Minimo 8 caracteres'), findsOneWidget);
+    expect(find.text('Mínimo 8 caracteres'), findsOneWidget);
   });
 
-  testWidgets('el registro exige una contrasena de al menos 8 caracteres', (tester) async {
+  testWidgets('el registro exige una contraseña de al menos 8 caracteres', (tester) async {
     await montarApp(tester);
 
     await tester.tap(find.text('No tengo cuenta, quiero registrarme'));
@@ -67,14 +67,77 @@ void main() {
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Nombre'), 'Ana');
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Correo electronico'),
+      find.widgetWithText(TextFormField, 'Correo electrónico'),
       'ana@example.com',
     );
-    await tester.enterText(find.widgetWithText(TextFormField, 'Contrasena'), 'corta');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Contraseña'), 'corta');
 
     await tester.tap(find.widgetWithText(FilledButton, 'Crear cuenta'));
     await tester.pump();
 
     expect(find.text('Debe tener al menos 8 caracteres'), findsOneWidget);
   });
+
+  testWidgets('el registro exige repetir la contraseña', (tester) async {
+    await montarApp(tester);
+    await tester.tap(find.text('No tengo cuenta, quiero registrarme'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nombre'), 'Ana');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Correo electrónico'),
+      'ana@example.com',
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Contraseña'), 'claveLarga1');
+    // La confirmacion queda vacia a proposito.
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Crear cuenta'));
+    await tester.pump();
+
+    expect(find.text('Repite la contraseña'), findsOneWidget);
+  });
+
+  testWidgets('avisa cuando las dos contraseñas no coinciden', (tester) async {
+    await montarApp(tester);
+    await tester.tap(find.text('No tengo cuenta, quiero registrarme'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nombre'), 'Ana');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Correo electrónico'),
+      'ana@example.com',
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Contraseña'), 'claveLarga1');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Repetir contraseña'),
+      'claveLarga2',
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Crear cuenta'));
+    await tester.pump();
+
+    expect(find.text('Las contraseñas no coinciden'), findsOneWidget);
+  });
+
+  testWidgets('con las dos contraseñas iguales no hay ningún reclamo', (tester) async {
+    await montarApp(tester);
+    await tester.tap(find.text('No tengo cuenta, quiero registrarme'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nombre'), 'Ana');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Correo electrónico'),
+      'ana@example.com',
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Contraseña'), 'claveLarga1');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Repetir contraseña'),
+      'claveLarga1',
+    );
+    await tester.pump();
+
+    expect(find.text('Las contraseñas no coinciden'), findsNothing);
+    expect(find.text('Repite la contraseña'), findsNothing);
+  });
 }
+

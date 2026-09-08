@@ -81,8 +81,8 @@ String mensajeDeError(Object error) {
     }
     if (error.type == DioExceptionType.connectionError ||
         error.type == DioExceptionType.connectionTimeout) {
-      return 'No se pudo conectar con el servidor. Verifica que este encendido.';
+      return 'No se pudo conectar con el servidor. Verifica que esté encendido.';
     }
   }
-  return 'Ocurrio un error inesperado';
+  return 'Ocurrió un error inesperado';
 }

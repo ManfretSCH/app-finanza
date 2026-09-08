@@ -16,6 +16,7 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
   final _nombre = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmacion = TextEditingController();
   bool _cargando = false;
   String? _error;
 
@@ -24,6 +25,7 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
     _nombre.dispose();
     _email.dispose();
     _password.dispose();
+    _confirmacion.dispose();
     super.dispose();
   }
 
@@ -71,22 +73,42 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _email,
-                  decoration: const InputDecoration(labelText: 'Correo electronico'),
+                  decoration: const InputDecoration(labelText: 'Correo electrónico'),
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
                   validator: (v) =>
-                      (v == null || !v.contains('@')) ? 'Ingresa un correo valido' : null,
+                      (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _password,
                   decoration: const InputDecoration(
-                    labelText: 'Contrasena',
-                    helperText: 'Minimo 8 caracteres',
+                    labelText: 'Contraseña',
+                    helperText: 'Mínimo 8 caracteres',
                   ),
                   obscureText: true,
+                  // Al reescribirla se revalida la confirmación, para que el
+                  // aviso desaparezca solo cuando las dos coinciden.
+                  onChanged: (_) {
+                    if (_confirmacion.text.isNotEmpty) {
+                      _formulario.currentState?.validate();
+                    }
+                  },
                   validator: (v) =>
                       (v == null || v.length < 8) ? 'Debe tener al menos 8 caracteres' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _confirmacion,
+                  decoration: const InputDecoration(labelText: 'Repetir contraseña'),
+                  obscureText: true,
+                  // Como no se ve lo que se escribe, un error de tipeo dejaría
+                  // al usuario sin poder entrar despues. Por eso se pide dos veces.
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Repite la contraseña';
+                    if (v != _password.text) return 'Las contraseñas no coinciden';
+                    return null;
+                  },
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 16),
