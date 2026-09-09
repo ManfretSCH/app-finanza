@@ -17,6 +17,10 @@ class Transaction(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"), index=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), index=True)
+    # De que movimiento fijo salio, si salio de alguno.
+    recurring_id: Mapped[int | None] = mapped_column(
+        ForeignKey("recurring_movements.id", ondelete="SET NULL"), nullable=True, index=True
+    )
 
     tipo: Mapped[TipoMovimiento] = mapped_column(Enum(TipoMovimiento, name="tipo_movimiento"))
     monto: Mapped[Decimal] = mapped_column(Numeric(14, 2))
@@ -29,3 +33,4 @@ class Transaction(Base):
     user = relationship("User", back_populates="transactions")
     account = relationship("Account", back_populates="transactions")
     category = relationship("Category")
+    recurrente = relationship("RecurringMovement", back_populates="generados")

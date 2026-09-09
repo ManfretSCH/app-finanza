@@ -3,6 +3,7 @@ import 'package:app_finanzas/core/formato.dart';
 import 'package:app_finanzas/core/tema.dart';
 import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/data/models/categoria.dart';
+import 'package:app_finanzas/features/fijos/fijos_screen.dart';
 import 'package:app_finanzas/features/transacciones/transaccion_form.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,18 @@ class TransaccionesScreen extends ConsumerWidget {
     final filtro = ref.watch(filtroTipoProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Movimientos')),
+      appBar: AppBar(
+        title: const Text('Movimientos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.event_repeat),
+            tooltip: 'Gastos fijos',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const FijosScreen()),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => abrirFormularioTransaccion(context, ref),
         icon: const Icon(Icons.add),
@@ -94,7 +106,26 @@ class TransaccionesScreen extends ConsumerWidget {
                               color: color,
                             ),
                           ),
-                          title: Text(m.categoria?.nombre ?? 'Sin categoría'),
+                          title: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  m.categoria?.nombre ?? 'Sin categoría',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              // Aclara de donde salio un movimiento que el
+                              // usuario no cargo a mano.
+                              if (m.esFijo) ...[
+                                const SizedBox(width: 6),
+                                Icon(
+                                  Icons.event_repeat,
+                                  size: 14,
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ],
+                            ],
+                          ),
                           subtitle: Text(
                             [
                               formatearFecha(m.fecha),

@@ -4,11 +4,26 @@ Son las que ve todo usuario nuevo. Tienen user_id NULL y no se pueden editar
 ni borrar desde la API. Ejecutar con:  uv run python -m app.db.seed
 """
 
+import unicodedata
+
 from sqlalchemy import select
 
 from app.db.session import SessionLocal
 from app.models import AccountType, Category
 from app.models.enums import TipoMovimiento
+
+
+def _sin_acentos(texto: str) -> str:
+    """Version comparable de un nombre, sin acentos ni mayusculas.
+
+    Los predefinidos se buscan por nombre, asi que corregirle un acento a uno
+    hacia que el seed no lo reconociera y lo creara de nuevo: quedaban
+    "Alimentacion" y "Alimentación" al mismo tiempo. Comparando sin acentos se
+    encuentra el que ya esta y se le corrige la escritura en lugar de duplicarlo.
+    """
+    descompuesto = unicodedata.normalize("NFD", texto.lower())
+    return "".join(c for c in descompuesto if unicodedata.category(c) != "Mn")
+
 
 CATEGORIAS_PREDEFINIDAS: list[tuple[str, TipoMovimiento, str, str]] = [
     # Gastos
@@ -41,13 +56,18 @@ def cargar_tipos_de_cuenta_predefinidos() -> int:
     """Inserta los que falten. Idempotente."""
     creados = 0
     with SessionLocal() as db:
+        existentes = db.scalars(
+            select(AccountType).where(AccountType.user_id.is_(None))
+        ).all()
+        por_nombre = {_sin_acentos(t.nombre): t for t in existentes}
+
         for nombre, icono in TIPOS_DE_CUENTA_PREDEFINIDOS:
-            existe = db.scalar(
-                select(AccountType).where(AccountType.user_id.is_(None), AccountType.nombre == nombre)
-            )
-            if existe is None:
+            actual = por_nombre.get(_sin_acentos(nombre))
+            if actual is None:
                 db.add(AccountType(user_id=None, nombre=nombre, icono=icono))
                 creados += 1
+            elif actual.nombre != nombre:
+                actual.nombre = nombre  # le faltaba un acento
         db.commit()
     return creados
 
@@ -56,13 +76,16 @@ def cargar_categorias_predefinidas() -> int:
     """Inserta las que falten. Es idempotente: se puede correr varias veces sin duplicar."""
     creadas = 0
     with SessionLocal() as db:
+        existentes = db.scalars(select(Category).where(Category.user_id.is_(None))).all()
+        por_nombre = {_sin_acentos(c.nombre): c for c in existentes}
+
         for nombre, tipo, icono, color in CATEGORIAS_PREDEFINIDAS:
-            existe = db.scalar(
-                select(Category).where(Category.user_id.is_(None), Category.nombre == nombre)
-            )
-            if existe is None:
+            actual = por_nombre.get(_sin_acentos(nombre))
+            if actual is None:
                 db.add(Category(user_id=None, nombre=nombre, tipo=tipo, icono=icono, color=color))
                 creadas += 1
+            elif actual.nombre != nombre:
+                actual.nombre = nombre  # le faltaba un acento
         db.commit()
     return creadas
 

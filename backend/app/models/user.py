@@ -24,3 +24,6 @@ class User(Base):
         "AccountType", back_populates="user", cascade="all, delete-orphan"
     )
     transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
+    recurring_movements = relationship(
+        "RecurringMovement", back_populates="user", cascade="all, delete-orphan"
+    )

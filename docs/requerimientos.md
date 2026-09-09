@@ -15,6 +15,18 @@ Cada requerimiento indica en qué módulo del cronograma (Hito 2) se implementa.
 | RF-006 | Reportes y análisis | Resumen mensual (ingresos, gastos, balance), promedio de gasto diario, gasto día por día, distribución de gastos e ingresos por categoría, y tendencia mensual del año. | 3 |
 | RF-007 | Gestión de usuarios | Registro, autenticación y gestión de perfil. Exportación del informe mensual en PDF y CSV. | 1 y 3 |
 
+### Requerimientos agregados después del Hito 3
+
+Estos no estaban en el análisis original. Se agregaron durante el desarrollo y se documentan acá para dejar constancia del cambio de alcance.
+
+| ID | Nombre | Descripción | Módulo |
+|---|---|---|---|
+| RF-008 | Movimientos fijos | Registrar una sola vez un gasto o ingreso que se repite todos los meses (alquiler, cuotas, sueldo) y que el sistema genere el movimiento de cada mes automáticamente. | 2 |
+
+**Por qué se agregó:** cargar a mano todos los meses lo que ya se sabe que se va a pagar es la parte más tediosa de una app de finanzas, y la que hace que la gente la abandone.
+
+**Cómo se resolvió:** se guarda una plantilla y el servidor genera los movimientos que falten cuando el usuario abre la app. Son transacciones reales, así que el saldo, los filtros, los informes y la exportación funcionan sin saber nada de esto. No hace falta ningún proceso programado corriendo en el servidor, que la capa gratuita de Render no incluye.
+
 ## Requerimientos no funcionales
 
 | ID | Nombre | Cómo se cumple |
