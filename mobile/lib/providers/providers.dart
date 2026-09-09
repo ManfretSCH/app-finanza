@@ -2,6 +2,7 @@ import 'package:app_finanzas/core/api_client.dart';
 import 'package:app_finanzas/data/models/categoria.dart';
 import 'package:app_finanzas/data/models/cuenta.dart';
 import 'package:app_finanzas/data/models/informe.dart';
+import 'package:app_finanzas/data/models/movimiento_fijo.dart';
 import 'package:app_finanzas/data/models/tipo_cuenta.dart';
 import 'package:app_finanzas/data/models/transaccion.dart';
 import 'package:app_finanzas/data/models/usuario.dart';
@@ -9,6 +10,7 @@ import 'package:app_finanzas/data/repositories/auth_repository.dart';
 import 'package:app_finanzas/data/repositories/categorias_repository.dart';
 import 'package:app_finanzas/data/repositories/cuentas_repository.dart';
 import 'package:app_finanzas/data/repositories/informes_repository.dart';
+import 'package:app_finanzas/data/repositories/movimientos_fijos_repository.dart';
 import 'package:app_finanzas/data/repositories/tipos_cuenta_repository.dart';
 import 'package:app_finanzas/data/repositories/transacciones_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,6 +41,9 @@ final tiposCuentaRepositoryProvider =
 final informesRepositoryProvider =
     Provider((ref) => InformesRepository(ref.watch(apiClientProvider)));
 
+final movimientosFijosRepositoryProvider =
+    Provider((ref) => MovimientosFijosRepository(ref.watch(apiClientProvider)));
+
 // --- Sesion ---
 
 /// Usuario con la sesion iniciada, o null si no hay ninguno.
@@ -47,12 +52,30 @@ final informesRepositoryProvider =
 /// para que el usuario no tenga que escribir la contrasena cada vez.
 class SesionNotifier extends AsyncNotifier<Usuario?> {
   @override
-  Future<Usuario?> build() => ref.watch(authRepositoryProvider).usuarioActual();
+  Future<Usuario?> build() async {
+    final usuario = await ref.watch(authRepositoryProvider).usuarioActual();
+    if (usuario != null) await _ponerAlDiaLosFijos();
+    return usuario;
+  }
+
+  /// Genera los movimientos fijos que falten desde la ultima vez.
+  ///
+  /// Se hace antes de devolver el usuario, para que cuando las pantallas pidan
+  /// los datos ya esten los movimientos del mes. Si falla no se corta el
+  /// ingreso: es preferible entrar con los fijos desactualizados a no entrar.
+  Future<void> _ponerAlDiaLosFijos() async {
+    try {
+      await ref.read(movimientosFijosRepositoryProvider).ponerseAlDia();
+    } catch (_) {
+      // Sin conexion o error del servidor: se reintenta el proximo ingreso.
+    }
+  }
 
   Future<void> iniciarSesion(String email, String password) async {
     final usuario = await ref
         .read(authRepositoryProvider)
         .iniciarSesion(email: email, password: password);
+    await _ponerAlDiaLosFijos();
     state = AsyncData(usuario);
   }
 
@@ -118,6 +141,11 @@ final transaccionesProvider = FutureProvider<List<Transaccion>>((ref) {
 final tiposCuentaProvider = FutureProvider<List<TipoCuenta>>((ref) {
   ref.watch(usuarioIdProvider);
   return ref.watch(tiposCuentaRepositoryProvider).listar();
+});
+
+final movimientosFijosProvider = FutureProvider<List<MovimientoFijo>>((ref) {
+  ref.watch(usuarioIdProvider);
+  return ref.watch(movimientosFijosRepositoryProvider).listar();
 });
 
 // --- Informes ---
@@ -192,6 +220,15 @@ void refrescarDatos(WidgetRef ref) {
   ref.invalidate(ingresosPorCategoriaProvider);
   ref.invalidate(porDiaProvider);
   ref.invalidate(tendenciaAnualProvider);
+}
+
+/// Recarga los movimientos fijos y todo lo que ellos generan.
+///
+/// Crear o editar un fijo crea movimientos de verdad, asi que cambian tambien
+/// los saldos, la lista y los informes.
+void refrescarFijos(WidgetRef ref) {
+  ref.invalidate(movimientosFijosProvider);
+  refrescarDatos(ref);
 }
 
 /// Recarga los catalogos y todo lo que los muestra.

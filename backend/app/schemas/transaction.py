@@ -35,6 +35,8 @@ class TransactionOut(BaseModel):
     id: int
     account_id: int
     category_id: int
+    # Si viene, el movimiento lo genero un movimiento fijo.
+    recurring_id: int | None = None
     tipo: TipoMovimiento
     monto: Decimal
     fecha: date
