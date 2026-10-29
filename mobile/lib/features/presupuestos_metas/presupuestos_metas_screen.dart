@@ -47,7 +47,7 @@ class _BudgetCard extends ConsumerWidget {
  @override Widget build(BuildContext context,WidgetRef ref){
   final alert=p.alerta; final color=alert=='limite'?Theme.of(context).colorScheme.error:alert=='atencion'?Colors.orange:Theme.of(context).colorScheme.primary;
   return Card(child:ListTile(title:Text(p.categoria?.nombre??'Categoría'),subtitle:Padding(padding:const EdgeInsets.only(top:8),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-    LinearProgressIndicator(value:(p.porcentaje/100).clamp(0,1),color:color),
+    LinearProgressIndicator(value:(p.porcentaje/100).clamp(0,1).toDouble(),color:color),
     const SizedBox(height:6),Text(formatearMonto(p.gastado)+' de '+formatearMonto(p.limite)),
     if(alert!=null) Text(alert=='limite'?'Superaste el límite':'Alcanzaste el 80 %',style:TextStyle(color:color)),
   ])),trailing:PopupMenuButton<String>(onSelected:(v)async{
