@@ -1,6 +1,7 @@
 import 'package:app_finanzas/features/cuentas/cuentas_screen.dart';
 import 'package:app_finanzas/features/informes/informes_screen.dart';
 import 'package:app_finanzas/features/perfil/perfil_screen.dart';
+import 'package:app_finanzas/features/presupuestos_metas/presupuestos_metas_screen.dart';
 import 'package:app_finanzas/features/transacciones/transacciones_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CuentasScreen(),
     TransaccionesScreen(),
     InformesScreen(),
+    PresupuestosMetasScreen(),
     PerfilScreen(),
   ];
 
@@ -47,6 +49,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.insights_outlined),
             selectedIcon: Icon(Icons.insights),
             label: 'Informes',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.savings_outlined),
+            selectedIcon: Icon(Icons.savings),
+            label: 'Planificación',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
