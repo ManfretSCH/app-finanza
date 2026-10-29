@@ -194,7 +194,7 @@ Con las Command Line Tools solas no alcanza: `flutter doctor` lo reporta como *"
 |---|---|---|---|
 | Fase 0 | Estructura, base de datos, esqueleto de la API | — | ✅ Listo |
 | Módulo 1 | Autenticación, cuentas, categorías y transacciones | 09/10/2026 | ✅ Listo (backend + app) |
-| Módulo 2 | Presupuestos y metas de ahorro | 16/10/2026 | Pendiente |
+| Módulo 2 | Presupuestos y metas de ahorro | 16/10/2026 | ✅ Listo (backend + app) |
 | Módulo 3 | Informes, gráficos y exportación | 23/10/2026 | ✅ Listo |
 
 ## Flujo de trabajo en Git
