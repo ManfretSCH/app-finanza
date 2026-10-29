@@ -5,6 +5,7 @@ Revises: 05979cb0ff14
 """
 from collections.abc import Sequence
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 from alembic import op
 
 revision: str = "b7421f1f2a91"
@@ -48,4 +49,4 @@ def downgrade() -> None:
     op.drop_index("ix_budgets_category_id", table_name="budgets")
     op.drop_index("ix_budgets_user_id", table_name="budgets")
     op.drop_table("budgets")
-    sa.Enum(name="estado_meta").drop(op.get_bind(), checkfirst=True)
+    postgresql.ENUM(name="estado_meta").drop(op.get_bind(), checkfirst=True)

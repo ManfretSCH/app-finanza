@@ -82,7 +82,7 @@ class _GoalCard extends ConsumerWidget {
 }
 
 Future<void> _budgetDialog(BuildContext context,WidgetRef ref,DateTime mes,{Presupuesto? item}) async {
- final cats=(ref.read(categoriasProvider).valueOrNull??<Categoria>[]).where((c)=>c.tipo==TipoMovimiento.gasto).toList();
+ final cats=(ref.read(categoriasProvider).value??<Categoria>[]).where((c)=>c.tipo==TipoMovimiento.gasto).toList();
  if(item==null&&cats.isEmpty){mostrarAviso(context,'Primero agrega una categoría de gasto.');return;}
  final amount=TextEditingController(text:item?.limite.toStringAsFixed(0)??'');
  int? cat=item?.categoriaId??(cats.isEmpty?null:cats.first.id);
