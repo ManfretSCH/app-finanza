@@ -3,8 +3,6 @@ import 'package:app_finanzas/data/models/categoria.dart';
 import 'package:app_finanzas/data/models/cuenta.dart';
 import 'package:app_finanzas/data/models/informe.dart';
 import 'package:app_finanzas/data/models/movimiento_fijo.dart';
-import 'package:app_finanzas/data/models/meta_ahorro.dart';
-import 'package:app_finanzas/data/models/presupuesto.dart';
 import 'package:app_finanzas/data/models/tipo_cuenta.dart';
 import 'package:app_finanzas/data/models/transaccion.dart';
 import 'package:app_finanzas/data/models/usuario.dart';
@@ -13,8 +11,6 @@ import 'package:app_finanzas/data/repositories/categorias_repository.dart';
 import 'package:app_finanzas/data/repositories/cuentas_repository.dart';
 import 'package:app_finanzas/data/repositories/informes_repository.dart';
 import 'package:app_finanzas/data/repositories/movimientos_fijos_repository.dart';
-import 'package:app_finanzas/data/repositories/metas_repository.dart';
-import 'package:app_finanzas/data/repositories/presupuestos_repository.dart';
 import 'package:app_finanzas/data/repositories/tipos_cuenta_repository.dart';
 import 'package:app_finanzas/data/repositories/transacciones_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,9 +40,6 @@ final tiposCuentaRepositoryProvider =
 
 final informesRepositoryProvider =
     Provider((ref) => InformesRepository(ref.watch(apiClientProvider)));
-
-final presupuestosRepositoryProvider = Provider((ref) => PresupuestosRepository(ref.watch(apiClientProvider)));
-final metasRepositoryProvider = Provider((ref) => MetasRepository(ref.watch(apiClientProvider)));
 
 final movimientosFijosRepositoryProvider =
     Provider((ref) => MovimientosFijosRepository(ref.watch(apiClientProvider)));
@@ -150,16 +143,6 @@ final tiposCuentaProvider = FutureProvider<List<TipoCuenta>>((ref) {
   return ref.watch(tiposCuentaRepositoryProvider).listar();
 });
 
-final presupuestosProvider = FutureProvider<List<Presupuesto>>((ref) {
-  ref.watch(usuarioIdProvider);
-  final mes = ref.watch(mesSeleccionadoProvider);
-  return ref.watch(presupuestosRepositoryProvider).listar(mes: mes.month, anio: mes.year);
-});
-final metasProvider = FutureProvider<List<MetaAhorro>>((ref) {
-  ref.watch(usuarioIdProvider);
-  return ref.watch(metasRepositoryProvider).listar();
-});
-
 final movimientosFijosProvider = FutureProvider<List<MovimientoFijo>>((ref) {
   ref.watch(usuarioIdProvider);
   return ref.watch(movimientosFijosRepositoryProvider).listar();
@@ -230,7 +213,6 @@ final tendenciaAnualProvider = FutureProvider<List<LineaMes>>((ref) {
 /// Los informes se derivan de las transacciones, asi que tienen que recalcularse
 /// junto con ellas: si no, el saldo cambia pero el informe queda viejo.
 void refrescarDatos(WidgetRef ref) {
-  ref.invalidate(presupuestosProvider);
   ref.invalidate(cuentasProvider);
   ref.invalidate(transaccionesProvider);
   ref.invalidate(resumenProvider);

@@ -6,11 +6,9 @@ from app.api.v1 import (
     account_types,
     accounts,
     auth,
-    budgets,
     categories,
     recurring,
     reports,
-    savings_goals,
     transactions,
 )
 
@@ -20,7 +18,5 @@ api_router.include_router(account_types.router)
 api_router.include_router(accounts.router)
 api_router.include_router(categories.router)
 api_router.include_router(transactions.router)
-api_router.include_router(budgets.router)
-api_router.include_router(savings_goals.router)
 api_router.include_router(recurring.router)
 api_router.include_router(reports.router)
