@@ -20,6 +20,8 @@ Tres capas, según el Hito 3:
 - **Movimientos**: alta de ingresos y gastos, filtros y borrado.
 - **Informes**: resumen del mes, gasto promedio por día, gasto día por día, en qué se va la plata y de dónde viene (por categoría), y la tendencia del año.
 - **Categorías y tipos de cuenta** propios, además de los del sistema.
+- **Presupuestos mensuales** por categoría, con seguimiento del gasto y avisos al llegar al 80 % y al 100 % del límite.
+- **Metas de ahorro** con fecha objetivo y progreso visual.
 - **Exportar** el informe del mes en CSV (para planilla) o PDF (para imprimir o enviar).
 
 **API desplegada:** https://finanzas-api-zbqy.onrender.com — backend en Render, base en Neon. Ver la [guía de despliegue](docs/despliegue.md).
