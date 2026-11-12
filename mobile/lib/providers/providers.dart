@@ -94,8 +94,13 @@ class SesionNotifier extends AsyncNotifier<Usuario?> {
   }
 }
 
-final sesionProvider =
-    AsyncNotifierProvider<SesionNotifier, Usuario?>(SesionNotifier.new);
+/// Sin reintento automatico. Riverpod repetiria el pedido hasta 10 veces con la
+/// ruedita girando, y si el servidor no contesta eso pueden ser varios minutos.
+/// Es mejor mostrar el error enseguida y que el usuario decida cuando reintentar.
+final sesionProvider = AsyncNotifierProvider<SesionNotifier, Usuario?>(
+  SesionNotifier.new,
+  retry: (_, _) => null,
+);
 
 /// Id del usuario con la sesion iniciada, o null si no hay ninguno.
 ///

@@ -1,5 +1,6 @@
 import 'package:app_finanzas/core/api_client.dart';
 import 'package:app_finanzas/data/models/usuario.dart';
+import 'package:dio/dio.dart';
 
 /// Llamadas al modulo de autenticacion del backend (RF-007).
 class AuthRepository {
@@ -33,13 +34,18 @@ class AuthRepository {
   }
 
   /// Recupera la sesion guardada al abrir la app. Devuelve null si no hay token
-  /// o si el token ya vencio.
+  /// o si el servidor lo rechaza porque ya vencio.
+  ///
+  /// Ante cualquier otro error el token se conserva y el error sigue de largo.
+  /// Si no habia conexion o el servidor seguia arrancando, el token todavia vale
+  /// y alcanza con reintentar; borrarlo obligaba a escribir la contrasena de nuevo.
   Future<Usuario?> usuarioActual() async {
     if (await _api.leerToken() == null) return null;
     try {
       final r = await _api.dio.get<Map<String, dynamic>>('/auth/me');
       return Usuario.fromJson(r.data!);
-    } catch (_) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 401) rethrow;
       await _api.borrarToken();
       return null;
     }

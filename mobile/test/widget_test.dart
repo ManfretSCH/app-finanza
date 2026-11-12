@@ -44,6 +44,26 @@ class AuthRepositoryDormido extends AuthRepositoryFalso {
       login.future;
 }
 
+/// La primera vez no logra comprobar la sesion guardada, como cuando el servidor
+/// tarda demasiado en despertarse. Al reintentar contesta cuando la prueba decide.
+class AuthRepositorySinRespuesta extends AuthRepositoryFalso {
+  int intentos = 0;
+  final reintento = Completer<Usuario?>();
+  bool cerroSesion = false;
+
+  @override
+  Future<Usuario?> usuarioActual() {
+    intentos++;
+    if (intentos > 1) return reintento.future;
+    return Future.error(
+      DioException(requestOptions: RequestOptions(), type: DioExceptionType.receiveTimeout),
+    );
+  }
+
+  @override
+  Future<void> cerrarSesion() async => cerroSesion = true;
+}
+
 /// Arranca la app con un repositorio de mentira, sin esperar a que se estabilice.
 Future<void> arrancarApp(WidgetTester tester, {AuthRepository? auth}) => tester.pumpWidget(
       ProviderScope(
@@ -213,5 +233,38 @@ void main() {
     await tester.pump();
     expect(avisoServidorDormido, findsNothing);
     expect(find.textContaining('tardó demasiado en responder'), findsOneWidget);
+  });
+
+  testWidgets('si al abrir la app no se pudo comprobar la sesión, se puede reintentar',
+      (tester) async {
+    final auth = AuthRepositorySinRespuesta();
+    await montarApp(tester, auth: auth);
+
+    // No manda al login: la sesion guardada sigue valiendo.
+    expect(find.byType(LoginScreen), findsNothing);
+    expect(find.textContaining('tardó demasiado en responder'), findsOneWidget);
+
+    // Mientras se reintenta se vuelve a ver la espera, no el error quieto.
+    await tester.tap(find.text('Reintentar'));
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.textContaining('tardó demasiado en responder'), findsNothing);
+    expect(auth.intentos, 2);
+
+    auth.reintento.complete(null);
+    await tester.pumpAndSettle();
+    expect(find.byType(LoginScreen), findsOneWidget);
+  });
+
+  testWidgets('si no se pudo comprobar la sesión, se puede descartar y entrar de nuevo',
+      (tester) async {
+    final auth = AuthRepositorySinRespuesta();
+    await montarApp(tester, auth: auth);
+
+    await tester.tap(find.text('Iniciar sesión de nuevo'));
+    await tester.pumpAndSettle();
+
+    expect(auth.cerroSesion, isTrue);
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 }

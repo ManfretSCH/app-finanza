@@ -1,3 +1,4 @@
+import 'package:app_finanzas/core/api_client.dart';
 import 'package:app_finanzas/core/tema.dart';
 import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/features/auth/login_screen.dart';
@@ -46,6 +47,9 @@ class _Puerta extends ConsumerWidget {
     final sesion = ref.watch(sesionProvider);
 
     return sesion.when(
+      // Al reintentar despues de un error se vuelve a mostrar la espera. Sin esto
+      // el error quedaria quieto en pantalla mientras se reintenta.
+      skipLoadingOnRefresh: !sesion.hasError,
       // Mientras se comprueba el token guardado. Si el servidor estaba dormido
       // esto puede tardar un par de minutos, por eso el aviso.
       loading: () => const Scaffold(
@@ -59,8 +63,40 @@ class _Puerta extends ConsumerWidget {
           ),
         ),
       ),
-      error: (_, _) => const LoginScreen(),
+      error: (e, _) => _SesionSinComprobar(e),
       data: (usuario) => usuario == null ? const LoginScreen() : const HomeScreen(),
+    );
+  }
+}
+
+/// Hay una sesion guardada pero no se pudo comprobar con el servidor.
+///
+/// El token se conserva, asi que si el problema era la conexion o que el
+/// servidor seguia arrancando, alcanza con reintentar. Por si el error no se
+/// arregla solo, tambien se puede descartar la sesion y entrar de nuevo.
+class _SesionSinComprobar extends ConsumerWidget {
+  const _SesionSinComprobar(this.error);
+
+  final Object error;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EstadoError(
+              mensaje: mensajeDeError(error),
+              alReintentar: () => ref.invalidate(sesionProvider),
+            ),
+            TextButton(
+              onPressed: () => ref.read(sesionProvider.notifier).cerrarSesion(),
+              child: const Text('Iniciar sesión de nuevo'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
