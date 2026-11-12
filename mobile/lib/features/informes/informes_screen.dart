@@ -31,7 +31,7 @@ class InformesScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: [
-            const _SelectorDeMes(),
+            const SelectorDeMes(),
             resumen.when(
               loading: () => const Padding(
                 padding: EdgeInsets.symmetric(vertical: 64),
@@ -64,8 +64,10 @@ class InformesScreen extends ConsumerWidget {
   }
 }
 
-class _SelectorDeMes extends ConsumerWidget {
-  const _SelectorDeMes();
+/// Flechas para moverse entre meses. El mes elegido es el mismo en Informes y
+/// en Planificación, para que las dos pantallas hablen siempre del mismo mes.
+class SelectorDeMes extends ConsumerWidget {
+  const SelectorDeMes({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

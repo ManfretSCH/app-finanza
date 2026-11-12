@@ -15,8 +15,8 @@ from app.models.user import User
 
 __all__ = [
     "Account",
-    "Budget",
     "AccountType",
+    "Budget",
     "Category",
     "EstadoMeta",
     "RecurringMovement",
