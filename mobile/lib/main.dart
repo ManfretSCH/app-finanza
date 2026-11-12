@@ -1,4 +1,5 @@
 import 'package:app_finanzas/core/tema.dart';
+import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/features/auth/login_screen.dart';
 import 'package:app_finanzas/features/home/home_screen.dart';
 import 'package:app_finanzas/providers/providers.dart';
@@ -45,8 +46,19 @@ class _Puerta extends ConsumerWidget {
     final sesion = ref.watch(sesionProvider);
 
     return sesion.when(
-      // Mientras se comprueba el token guardado.
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      // Mientras se comprueba el token guardado. Si el servidor estaba dormido
+      // esto puede tardar un par de minutos, por eso el aviso.
+      loading: () => const Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [CircularProgressIndicator(), AvisoServidorDormido()],
+            ),
+          ),
+        ),
+      ),
       error: (_, _) => const LoginScreen(),
       data: (usuario) => usuario == null ? const LoginScreen() : const HomeScreen(),
     );
