@@ -2,7 +2,7 @@
 
 Aplicación móvil para centralizar el control de ingresos, gastos, cuentas, presupuestos y metas de ahorro.
 
-**Taller de Ingeniería de Software** — Gustavo Molinas (líder), Matias Moreno, Maiquel Schroter, Ezequiel Rejala.
+**Taller de Ingeniería de Software** — Gustavo Molinas (líder), Matias Moreno, Maiquel Schroter, Ezequiel Rejala, Luana Aguayo.
 
 ## Arquitectura
 
