@@ -3,24 +3,39 @@ import 'package:app_finanzas/core/formato.dart';
 import 'package:app_finanzas/data/models/categoria.dart';
 import 'package:app_finanzas/data/models/cuenta.dart';
 import 'package:app_finanzas/data/models/transaccion.dart';
+import 'package:app_finanzas/features/planificacion/alerta_presupuesto.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Lo que devuelve el formulario al guardar: alcanza para revisar el presupuesto.
+typedef _MovimientoGuardado = ({TipoMovimiento tipo, int categoriaId, DateTime fecha});
+
 /// Abre el formulario de movimientos y refresca los datos si se guardo algo.
 ///
-/// Sin [movimiento] da de alta uno nuevo; con [movimiento] edita ese.
+/// Sin [movimiento] da de alta uno nuevo; con [movimiento] edita ese. Si lo
+/// guardado es un gasto, avisa cuando su categoria llego al 80 % o al 100 %
+/// del presupuesto del mes.
 Future<void> abrirFormularioTransaccion(
   BuildContext context,
   WidgetRef ref, {
   Transaccion? movimiento,
 }) async {
-  final guardado = await showModalBottomSheet<bool>(
+  final guardado = await showModalBottomSheet<_MovimientoGuardado>(
     context: context,
     isScrollControlled: true,
     builder: (_) => _FormularioTransaccion(movimiento: movimiento),
   );
-  if (guardado ?? false) refrescarDatos(ref);
+  if (guardado == null) return;
+  refrescarDatos(ref);
+  if (guardado.tipo == TipoMovimiento.gasto && context.mounted) {
+    await avisarSiCorrespondePresupuesto(
+      context,
+      ref,
+      categoriaId: guardado.categoriaId,
+      fecha: guardado.fecha,
+    );
+  }
 }
 
 class _FormularioTransaccion extends ConsumerStatefulWidget {
@@ -103,7 +118,9 @@ class _FormularioTransaccionState extends ConsumerState<_FormularioTransaccion> 
           descripcion: _descripcion.text.trim(),
         );
       }
-      if (mounted) Navigator.of(context).pop(true);
+      if (mounted) {
+        Navigator.of(context).pop((tipo: _tipo, categoriaId: _categoriaId!, fecha: _fecha));
+      }
     } catch (e) {
       if (mounted) setState(() => _error = mensajeDeError(e));
     } finally {

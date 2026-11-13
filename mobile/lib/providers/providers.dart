@@ -2,7 +2,9 @@ import 'package:app_finanzas/core/api_client.dart';
 import 'package:app_finanzas/data/models/categoria.dart';
 import 'package:app_finanzas/data/models/cuenta.dart';
 import 'package:app_finanzas/data/models/informe.dart';
+import 'package:app_finanzas/data/models/meta_ahorro.dart';
 import 'package:app_finanzas/data/models/movimiento_fijo.dart';
+import 'package:app_finanzas/data/models/presupuesto.dart';
 import 'package:app_finanzas/data/models/tipo_cuenta.dart';
 import 'package:app_finanzas/data/models/transaccion.dart';
 import 'package:app_finanzas/data/models/usuario.dart';
@@ -10,7 +12,9 @@ import 'package:app_finanzas/data/repositories/auth_repository.dart';
 import 'package:app_finanzas/data/repositories/categorias_repository.dart';
 import 'package:app_finanzas/data/repositories/cuentas_repository.dart';
 import 'package:app_finanzas/data/repositories/informes_repository.dart';
+import 'package:app_finanzas/data/repositories/metas_repository.dart';
 import 'package:app_finanzas/data/repositories/movimientos_fijos_repository.dart';
+import 'package:app_finanzas/data/repositories/presupuestos_repository.dart';
 import 'package:app_finanzas/data/repositories/tipos_cuenta_repository.dart';
 import 'package:app_finanzas/data/repositories/transacciones_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,6 +44,11 @@ final tiposCuentaRepositoryProvider =
 
 final informesRepositoryProvider =
     Provider((ref) => InformesRepository(ref.watch(apiClientProvider)));
+
+final presupuestosRepositoryProvider =
+    Provider((ref) => PresupuestosRepository(ref.watch(apiClientProvider)));
+
+final metasRepositoryProvider = Provider((ref) => MetasRepository(ref.watch(apiClientProvider)));
 
 final movimientosFijosRepositoryProvider =
     Provider((ref) => MovimientosFijosRepository(ref.watch(apiClientProvider)));
@@ -143,6 +152,32 @@ final tiposCuentaProvider = FutureProvider<List<TipoCuenta>>((ref) {
   return ref.watch(tiposCuentaRepositoryProvider).listar();
 });
 
+/// Presupuestos del mes elegido en el selector, con lo gastado y sus alertas.
+///
+/// Usa el mismo mes que los informes: las dos pantallas miran el mismo mes.
+final presupuestosProvider = FutureProvider<List<Presupuesto>>((ref) {
+  ref.watch(usuarioIdProvider);
+  final mes = ref.watch(mesSeleccionadoProvider);
+  return ref.watch(presupuestosRepositoryProvider).listar(mes: mes.month, anio: mes.year);
+});
+
+/// Presupuestos del mes en curso que ya dispararon una alerta (80 % o 100 %).
+///
+/// Es independiente del mes elegido en el selector: el aviso de la barra de
+/// navegacion tiene que hablar siempre de este mes.
+final alertasPresupuestoProvider = FutureProvider<List<Presupuesto>>((ref) async {
+  ref.watch(usuarioIdProvider);
+  final hoy = DateTime.now();
+  final lista =
+      await ref.watch(presupuestosRepositoryProvider).listar(mes: hoy.month, anio: hoy.year);
+  return lista.where((p) => p.alerta != null).toList();
+});
+
+final metasProvider = FutureProvider<List<MetaAhorro>>((ref) {
+  ref.watch(usuarioIdProvider);
+  return ref.watch(metasRepositoryProvider).listar();
+});
+
 final movimientosFijosProvider = FutureProvider<List<MovimientoFijo>>((ref) {
   ref.watch(usuarioIdProvider);
   return ref.watch(movimientosFijosRepositoryProvider).listar();
@@ -150,7 +185,7 @@ final movimientosFijosProvider = FutureProvider<List<MovimientoFijo>>((ref) {
 
 // --- Informes ---
 
-/// Mes que se esta mirando en la pantalla de informes.
+/// Mes que se esta mirando en Informes y en Planificacion.
 class MesSeleccionadoNotifier extends Notifier<DateTime> {
   @override
   DateTime build() {
@@ -212,6 +247,8 @@ final tendenciaAnualProvider = FutureProvider<List<LineaMes>>((ref) {
 ///
 /// Los informes se derivan de las transacciones, asi que tienen que recalcularse
 /// junto con ellas: si no, el saldo cambia pero el informe queda viejo.
+///
+/// Lo gastado de cada presupuesto tambien sale de los movimientos.
 void refrescarDatos(WidgetRef ref) {
   ref.invalidate(cuentasProvider);
   ref.invalidate(transaccionesProvider);
@@ -220,6 +257,13 @@ void refrescarDatos(WidgetRef ref) {
   ref.invalidate(ingresosPorCategoriaProvider);
   ref.invalidate(porDiaProvider);
   ref.invalidate(tendenciaAnualProvider);
+  refrescarPresupuestos(ref);
+}
+
+/// Recarga los presupuestos y sus alertas tras crear, editar o borrar uno.
+void refrescarPresupuestos(WidgetRef ref) {
+  ref.invalidate(presupuestosProvider);
+  ref.invalidate(alertasPresupuestoProvider);
 }
 
 /// Recarga los movimientos fijos y todo lo que ellos generan.

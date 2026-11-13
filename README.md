@@ -20,6 +20,9 @@ Tres capas, según el Hito 3:
 - **Movimientos**: alta de ingresos y gastos, filtros y borrado.
 - **Informes**: resumen del mes, gasto promedio por día, gasto día por día, en qué se va la plata y de dónde viene (por categoría), y la tendencia del año.
 - **Categorías y tipos de cuenta** propios, además de los del sistema.
+- **Gastos fijos**: lo que se repite todos los meses (alquiler, cuotas, sueldo) se carga una vez y se registra solo.
+- **Presupuestos mensuales** por categoría: cuánto se gastó y cuánto queda, con aviso al llegar al 80 % y al 100 % del límite, tanto en la pantalla como al registrar el gasto. Se pueden copiar los del mes anterior.
+- **Metas de ahorro** con fecha objetivo, progreso en un gráfico circular y cuánto habría que juntar por mes para llegar a tiempo.
 - **Exportar** el informe del mes en CSV (para planilla) o PDF (para imprimir o enviar).
 
 **API desplegada:** https://finanzas-api-zbqy.onrender.com — backend en Render, base en Neon. Ver la [guía de despliegue](docs/despliegue.md).
@@ -194,7 +197,7 @@ Con las Command Line Tools solas no alcanza: `flutter doctor` lo reporta como *"
 |---|---|---|---|
 | Fase 0 | Estructura, base de datos, esqueleto de la API | — | ✅ Listo |
 | Módulo 1 | Autenticación, cuentas, categorías y transacciones | 09/10/2026 | ✅ Listo (backend + app) |
-| Módulo 2 | Presupuestos y metas de ahorro | 16/10/2026 | Pendiente |
+| Módulo 2 | Presupuestos, metas de ahorro y gastos fijos | 16/10/2026 | ✅ Listo |
 | Módulo 3 | Informes, gráficos y exportación | 23/10/2026 | ✅ Listo |
 
 ## Flujo de trabajo en Git
