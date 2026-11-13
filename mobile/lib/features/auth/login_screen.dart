@@ -1,4 +1,5 @@
 import 'package:app_finanzas/core/api_client.dart';
+import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/features/auth/registro_screen.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +105,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           )
                         : const Text('Iniciar sesión'),
                   ),
+                  // Suele ser el primer pedido del dia, el que despierta al servidor.
+                  if (_cargando) const AvisoServidorDormido(),
                   TextButton(
                     onPressed: _cargando
                         ? null

@@ -1,4 +1,5 @@
 import 'package:app_finanzas/core/api_client.dart';
+import 'package:app_finanzas/core/widgets.dart';
 import 'package:app_finanzas/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,6 +129,8 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
                         )
                       : const Text('Crear cuenta'),
                 ),
+                // Para alguien nuevo es el primer pedido, el que despierta al servidor.
+                if (_cargando) const AvisoServidorDormido(),
               ],
             ),
           ),

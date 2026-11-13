@@ -31,14 +31,30 @@ String get urlBase => resolverUrlBase(
       esAndroid: Platform.isAndroid,
     );
 
+/// Cuanto se espera a que el servidor acepte la conexion.
+///
+/// Aunque el backend este dormido, en Render la conexion la atiende enseguida su
+/// proxy, que retiene el pedido hasta que el servicio arranca. Por eso este tiempo
+/// puede ser corto: si se agota, el servidor de verdad no esta al alcance.
+const tiempoMaximoConexion = Duration(seconds: 30);
+
+/// Cuanto se espera la respuesta una vez enviado el pedido.
+///
+/// El backend corre en la capa gratuita de Render, que lo apaga tras un rato sin
+/// uso. El primer pedido que llega despues tiene que esperar a que vuelva a
+/// arrancar: se midieron 42 segundos y a veces anda cerca de los dos minutos. Con
+/// 10 segundos, como estaba antes, ese pedido fallaba siempre. Se deja algo de
+/// margen por encima de los dos minutos que se le anuncian al usuario.
+const tiempoMaximoRespuesta = Duration(seconds: 150);
+
 /// Cliente HTTP con el token adjuntado automaticamente en cada pedido.
 class ApiClient {
   ApiClient(this._almacenamiento) {
     dio = Dio(
       BaseOptions(
         baseUrl: urlBase,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        connectTimeout: tiempoMaximoConexion,
+        receiveTimeout: tiempoMaximoRespuesta,
       ),
     );
 
@@ -82,6 +98,13 @@ String mensajeDeError(Object error) {
     if (error.type == DioExceptionType.connectionError ||
         error.type == DioExceptionType.connectionTimeout) {
       return 'No se pudo conectar con el servidor. Verifica que esté encendido.';
+    }
+    // Hubo conexion pero la respuesta no llego a tiempo. Lo mas probable es que
+    // el servidor siguiera arrancando, y como el arranque continua aunque este
+    // pedido se haya cortado, al reintentar en un rato suele responder.
+    if (error.type == DioExceptionType.receiveTimeout) {
+      return 'El servidor tardó demasiado en responder. '
+          'Puede que todavía se esté despertando: intenta de nuevo en un momento.';
     }
   }
   return 'Ocurrió un error inesperado';

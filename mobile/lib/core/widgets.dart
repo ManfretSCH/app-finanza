@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Mensaje para cuando una lista no tiene nada que mostrar.
@@ -99,4 +101,53 @@ void mostrarAviso(BuildContext context, String mensaje) {
   ScaffoldMessenger.of(context)
     ..clearSnackBars()
     ..showSnackBar(SnackBar(content: Text(mensaje)));
+}
+
+/// Aviso para cuando un pedido al servidor tarda mas de lo normal.
+///
+/// El backend corre en la capa gratuita de Render, que lo apaga tras un rato sin
+/// uso, y el primer pedido despues de eso espera a que vuelva a arrancar. Sin este
+/// aviso el usuario solo ve una ruedita girando y piensa que la app se colgo.
+///
+/// Se pone en pantalla mientras dura el pedido y aparece recien pasado [demora],
+/// para no molestar cuando el servidor esta despierto y responde enseguida.
+class AvisoServidorDormido extends StatefulWidget {
+  const AvisoServidorDormido({super.key});
+
+  /// Un servidor despierto responde en menos de un segundo; pasado este tiempo
+  /// lo mas probable es que este arrancando.
+  static const demora = Duration(seconds: 5);
+
+  @override
+  State<AvisoServidorDormido> createState() => _AvisoServidorDormidoState();
+}
+
+class _AvisoServidorDormidoState extends State<AvisoServidorDormido> {
+  late final Timer _temporizador;
+  bool _visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _temporizador = Timer(AvisoServidorDormido.demora, () => setState(() => _visible = true));
+  }
+
+  @override
+  void dispose() {
+    _temporizador.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Text(
+        'El servidor se está despertando, puede tardar hasta 2 minutos.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
+    );
+  }
 }
